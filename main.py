@@ -109,22 +109,21 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=chat_id, text=NO_STATS)
 
 
-if __name__ == '__main__':
-    PORT = int(os.environ.get('PORT', '8443'))
+PORT = int(os.environ.get('PORT', '8443'))
 
-    application = ApplicationBuilder().token(TOKEN).build()
-    # updater = Updater(TOKEN, use_context=True)
-    start_handler = CommandHandler('start', start)
-    register_handler = CommandHandler('register', register)
-    pidor_handler = CommandHandler('pidor', pidor)
-    stats_handler = CommandHandler('stats', stats)
-    application.add_handler(start_handler)
-    application.add_handler(register_handler)
-    application.add_handler(pidor_handler)
-    application.add_handler(stats_handler)
+application = ApplicationBuilder().token(TOKEN).build()
+# updater = Updater(TOKEN, use_context=True)
+start_handler = CommandHandler('start', start)
+register_handler = CommandHandler('register', register)
+pidor_handler = CommandHandler('pidor', pidor)
+stats_handler = CommandHandler('stats', stats)
+application.add_handler(start_handler)
+application.add_handler(register_handler)
+application.add_handler(pidor_handler)
+application.add_handler(stats_handler)
 
-    application.run_webhook(listen="0.0.0.0",
-                            port=PORT,
-                            url_path=TOKEN,
-                            webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
-                            )
+application.run_webhook(listen="0.0.0.0",
+                        port=PORT,
+                        url_path=TOKEN,
+                        webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
+                        )
