@@ -9,7 +9,6 @@ from random import choice
 from messages import PREFIX_SIMPLE, PREFIX_DIRTY, PREFIX_LORD, PREFIX_GENERAL, WINNER_MSG, ALREADY_IN, \
     DEFAULT_START_MSG, ZERO_PIDORS, PROCESS_STARTING_MSG, NO_STATS, PARTICIPANTS_LIST, PIDOR_STATS, JOINED_MSG
 from storage import Storage
-import asyncio
 
 API_link = 'https://api.telegram.org/bot5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzFbYfRPc'
 CHAT_ID = -769270882
