@@ -111,9 +111,9 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', '8443'))
-    updater = Updater(TOKEN)
-    application = ApplicationBuilder().token(TOKEN).build()
 
+    application = ApplicationBuilder().token(TOKEN).build()
+    # updater = Updater(TOKEN, use_context=True)
     start_handler = CommandHandler('start', start)
     register_handler = CommandHandler('register', register)
     pidor_handler = CommandHandler('pidor', pidor)
@@ -123,9 +123,8 @@ if __name__ == '__main__':
     application.add_handler(pidor_handler)
     application.add_handler(stats_handler)
 
-    updater.start_webhook(listen="0.0.0.0",
-                          port=PORT,
-                          url_path=TOKEN,
-                          webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
-                          )
-    updater.idle()
+    application.run_webhook(listen="0.0.0.0",
+                            port=PORT,
+                            url_path=TOKEN,
+                            webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
+                            )
