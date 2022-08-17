@@ -46,6 +46,7 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=chat_id, text=joined_text)
     else:
         await context.bot.send_message(chat_id=chat_id, text=ALREADY_IN)
+        await context.bot.send_message(chat_id=chat_id, text='этот бот использует вебхуки, мазафака! WebPudge')
 
 
 
