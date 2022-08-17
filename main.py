@@ -9,6 +9,7 @@ from random import choice
 from messages import PREFIX_SIMPLE, PREFIX_DIRTY, PREFIX_LORD, PREFIX_GENERAL, WINNER_MSG, ALREADY_IN, \
     DEFAULT_START_MSG, ZERO_PIDORS, PROCESS_STARTING_MSG, NO_STATS, PARTICIPANTS_LIST, PIDOR_STATS, JOINED_MSG
 from storage import Storage
+import asyncio
 
 API_link = 'https://api.telegram.org/bot5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzFbYfRPc'
 CHAT_ID = -769270882
@@ -18,6 +19,8 @@ logging.basicConfig(
     level=logging.INFO
 )
 TOKEN = '5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzFbYfRPc'
+
+
 # pip install -r requirements.txt
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -28,7 +31,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=update.effective_chat.id, text=storage.start_message())
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text=DEFAULT_START_MSG)
-
 
 
 async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -47,7 +49,6 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await context.bot.send_message(chat_id=chat_id, text=ALREADY_IN)
         await context.bot.send_message(chat_id=chat_id, text='этот бот использует вебхуки, мазафака! WebPudge')
-
 
 
 scoreboard = {}
@@ -109,6 +110,8 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 if __name__ == '__main__':
+    PORT = int(os.environ.get('PORT', '8443'))
+    updater = Updater(TOKEN)
     application = ApplicationBuilder().token(TOKEN).build()
 
     start_handler = CommandHandler('start', start)
@@ -120,12 +123,9 @@ if __name__ == '__main__':
     application.add_handler(pidor_handler)
     application.add_handler(stats_handler)
 
-
-updater = Updater(TOKEN)
-updater.start_webhook(listen="0.0.0.0",
-                      port=int(os.environ.get('PORT', 5000)),
-                      url_path=TOKEN,
-                      webhook_url= 'https://pidor-checker-bot.herokuapp.com/' + TOKEN
-                      )
-
-
+    updater.start_webhook(listen="0.0.0.0",
+                          port=PORT,
+                          url_path=TOKEN,
+                          webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
+                          )
+    updater.idle()
