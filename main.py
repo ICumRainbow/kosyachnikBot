@@ -1,9 +1,10 @@
 import logging
+import os
 import pprint
 import telegram
 from telegram import Update
 from telegram.constants import ParseMode
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Updater
 from random import choice
 from messages import PREFIX_SIMPLE, PREFIX_DIRTY, PREFIX_LORD, PREFIX_GENERAL, WINNER_MSG, ALREADY_IN, \
     DEFAULT_START_MSG, ZERO_PIDORS, PROCESS_STARTING_MSG, NO_STATS, PARTICIPANTS_LIST, PIDOR_STATS, JOINED_MSG
@@ -17,6 +18,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 TOKEN = '5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzFbYfRPc'
+# pip install -r requirements.txt
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
@@ -116,5 +118,14 @@ if __name__ == '__main__':
     application.add_handler(register_handler)
     application.add_handler(pidor_handler)
     application.add_handler(stats_handler)
-
     application.run_polling()
+
+
+updater = Updater(TOKEN)
+updater.start_webhook(listen="0.0.0.0",
+                      port=int(os.environ.get('PORT', 5000)),
+                      url_path=TOKEN,
+                      webhook_url= 'https://pidor-checker-bot.herokuapp.com/' + TOKEN
+                      )
+
+
