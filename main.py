@@ -119,7 +119,6 @@ if __name__ == '__main__':
     application.add_handler(register_handler)
     application.add_handler(pidor_handler)
     application.add_handler(stats_handler)
-    application.run_polling()
 
 
 updater = Updater(TOKEN)
