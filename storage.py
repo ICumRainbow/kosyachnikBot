@@ -11,7 +11,7 @@ CHAT_ID = -769270882
 class Storage:
     headers = ['id', 'username', 'name', 'score']
 
-    def __init__(self, storage_file_name: int):
+    def __init__(self, storage_file_name: str):
         self.storage_file_name = f'database/{storage_file_name}.csv'
         self.storage_time_file_name = f'database/{storage_file_name}-time.txt'
         path = Path(self.storage_file_name)
