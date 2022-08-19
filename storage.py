@@ -14,7 +14,7 @@ class Storage:
     def __init__(self, storage_file_name: int):
         self.storage_file_name = f'database/{storage_file_name}.csv'
         self.storage_time_file_name = f'database/{storage_file_name}-time.txt'
-        path = Path(f'database/{storage_file_name}.csv')
+        path = Path(self.storage_file_name)
 
         if not path.exists():
             with open(self.storage_file_name, 'w+', newline='') as database:  # Create storage if does not exist and add headers. Just open storage otherwise
