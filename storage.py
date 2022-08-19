@@ -17,8 +17,7 @@ class Storage:
         path = Path(f'database/{storage_file_name}.csv')
 
         if not path.exists():
-            with open(self.storage_file_name, 'w+',
-                           newline='') as database:  # Create storage if does not exist and add headers. Just open storage otherwise
+            with open(self.storage_file_name, 'w+', newline='') as database:  # Create storage if does not exist and add headers. Just open storage otherwise
                 writer = csv.DictWriter(database, fieldnames=self.headers)
                 writer.writeheader()
 
