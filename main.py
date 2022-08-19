@@ -135,10 +135,10 @@ application.add_handler(start_handler)
 application.add_handler(register_handler)
 application.add_handler(pidor_handler)
 application.add_handler(stats_handler)
-application.run_polling()
+# application.run_polling()
 
-# application.run_webhook(listen="0.0.0.0",
-#                         port=PORT,
-#                         url_path=TOKEN,
-#                         webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
-#                         )
+application.run_webhook(listen="0.0.0.0",
+                        port=PORT,
+                        url_path=TOKEN,
+                        webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
+                        )
