@@ -10,27 +10,6 @@ API_link = 'https://api.telegram.org/bot5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzF
 CHAT_ID = -769270882
 
 
-def connected():
-    try:
-        connection = pymysql.connect(
-            host=host,
-            port=3306,
-            user=user,
-            password=password,
-            database=db_name,
-            cursorclass=pymysql.cursors.DictCursor
-        )
-        print('Success!')
-        return True, connection
-    except Exception as ex:
-        print('FAIL')
-        print(ex)
-        return False
-
-
-connected, connection = connected()
-
-
 class Storage:
     headers = ['id', 'username', 'name', 'score']
 
@@ -48,6 +27,23 @@ class Storage:
     #         writer = csv.DictWriter(database, fieldnames=self.headers)
     #         writer.writeheader()
 
+    def connected(self):
+        try:
+            connection = pymysql.connect(
+                host=host,
+                port=3306,
+                user=user,
+                password=password,
+                database=db_name,
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            print('Success!')
+            return True, connection
+        except Exception as ex:
+            print('FAIL')
+            print(ex)
+            return False
+
     def start_msg_exists(self) -> bool:
         path_start = Path('start.txt')
         return path_start.exists()
@@ -61,6 +57,7 @@ class Storage:
         # with open(self.storage_file_name, 'r') as list_of_participants_file:
         #     user_in_db = str(user_id) in list_of_participants_file.read()
         #     return user_in_db
+        connected, connection = self.connected()
         if connected:
             with connection.cursor() as cursor:
                 select_query = 'select * from users'
@@ -77,6 +74,7 @@ class Storage:
         # with open(self.storage_file_name, mode='a', encoding='utf-8') as database:
         #     database.write(f'{user_id},{username},{name},0\n')
         row = (chat_id, user_id, username, name, 0)
+        connected, connection = self.connected()
         if connected:
             with connection.cursor() as cursor:
                 add_row_query = "INSERT INTO `users` VALUES(%s,%s,%s,%s, %s)"
@@ -88,19 +86,20 @@ class Storage:
         # list_of_participants.append(username)
 
     def rows_exist(self, chat_id) -> bool:
-
-            with connection.cursor() as cursor:
-                rows_exist_query = 'SELECT * FROM users WHERE chat_id=%s'
-                if connected:
-                    result = cursor.execute(rows_exist_query, chat_id)
-                    connection.commit()
-                    return result
+        connected, connection = self.connected()
+        with connection.cursor() as cursor:
+            rows_exist_query = 'SELECT * FROM users WHERE chat_id=%s'
+            if connected:
+                result = cursor.execute(rows_exist_query, chat_id)
+                connection.commit()
+                return result
 
     def rows_list(self, chat_id) -> list:
         # with open(self.storage_file_name) as f:
         #     reader = csv.reader(f)
         #     data = list(reader)
         # return data
+        connected, connection = self.connected()
         if connected:
             with connection.cursor() as cursor:
                 select_query = 'select * from users where chat_id=%s'
@@ -110,12 +109,12 @@ class Storage:
                 return participants_list
 
     def check_participants(self, chat_id):
+        connected, connection = self.connected()
         if connected:
             with connection.cursor() as cursor:
                 check_participants_query = 'SELECT * FROM users WHERE chat_id=%s'
                 participants_exist = cursor.execute(check_participants_query, chat_id)
             return participants_exist
-
 
     async def increment_row(self, chat_id, winner_id: int):
 
@@ -123,6 +122,7 @@ class Storage:
         # if user_id == winner_id:
         #     score = int(score) + 1
         row = (chat_id, winner_id)
+        connected, connection = self.connected()
         if connected:
             with connection.cursor() as cursor:
                 increment_score_query = 'UPDATE `users` SET score = score + 1 WHERE chat_id = %s AND user_id =%s'
@@ -130,7 +130,7 @@ class Storage:
                 connection.commit()
 
     def time_file_exists(self, chat_id):
-
+        connected, connection = self.connected()
         if connected:
             with connection.cursor() as cursor:
                 check_participants_query = 'SELECT * FROM time_db WHERE chat_id=%s'
@@ -138,7 +138,9 @@ class Storage:
                 result = cursor.execute(check_participants_query, chat_id)
                 connection.commit()
                 return result
+
     def truncate(self):
+        connected, connection = self.connected()
         with connection.cursor() as cursor:
             truncate_users = 'TRUNCATE TABLE users'
             truncate_time = 'TRUNCATE TABLE time_db'
@@ -157,6 +159,7 @@ class Storage:
         #     # print(split)
         #     timefile.write(current_time)
         row = (chat_id, current_time)
+        connected, connection = self.connected()
         if connected:
             with connection.cursor() as cursor:
                 create_time_file_query = "INSERT INTO `time_db` VALUES(%s, %s)"
@@ -164,6 +167,7 @@ class Storage:
                 connection.commit()
 
     def time_file_read(self, chat_id):
+        connected, connection = self.connected()
         if connected:
             with connection.cursor() as cursor:
                 time_file_read_query = 'SELECT last_time FROM time_db WHERE chat_id=%s'
@@ -172,9 +176,8 @@ class Storage:
                 connection.commit()
             return str(rows['last_time'])
 
-
     async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str):
-
+        connected, connection = self.connected()
         if connected:
             row2overwrite = (new_username, new_name, target_user_id)
             with connection.cursor() as cursor:
