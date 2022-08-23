@@ -112,8 +112,8 @@ class Storage:
     def check_participants(self, chat_id):
         with connection.cursor() as cursor:
             check_participants_query = 'SELECT * FROM users WHERE chat_id=%s'
-
-        return cursor.execute(check_participants_query, chat_id)
+            participants_exist = cursor.execute(check_participants_query, chat_id)
+        return participants_exist
 
     async def increment_row(self, chat_id, winner_id: int):
 
