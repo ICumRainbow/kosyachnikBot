@@ -55,7 +55,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
     storage = Storage(chat_id)
-    storage.truncate()
+    # storage.truncate()
     # Add new row (when registered)
     username = update.effective_user.username or ''
     user_id = int(update.effective_user.id)
