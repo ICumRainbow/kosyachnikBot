@@ -21,13 +21,6 @@ try:
     )
     print('Success!')
 
-    # try:
-        # cursor = connection.cursor()
-
-        # create table
-        # with connection.cursor() as cursor:
-        #     create_table_query = "CREATE TABLE 'users'(id int"
-
 except Exception as ex:
     print('FAIL')
     print(ex)
@@ -65,6 +58,22 @@ class Storage:
         # with open(self.storage_file_name, 'r') as list_of_participants_file:
         #     user_in_db = str(user_id) in list_of_participants_file.read()
         #     return user_in_db
+        try:
+            connection = pymysql.connect(
+                host=host,
+                port=3306,
+                user=user,
+                password=password,
+                database=db_name,
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            print('Success!')
+
+        except Exception as ex:
+            print('FAIL')
+            print(ex)
+
+
         with connection.cursor() as cursor:
             select_query = 'select * from users'
             cursor.execute(select_query)
