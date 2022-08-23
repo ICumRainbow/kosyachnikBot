@@ -153,12 +153,27 @@ class Storage:
 
     def time_file_exists(self, chat_id):
 
-        with connection.cursor() as cursor:
-            check_participants_query = 'SELECT * FROM time_db WHERE chat_id=%s'
+        try:
+            connection = pymysql.connect(
+                host=host,
+                port=3306,
+                user=user,
+                password=password,
+                database=db_name,
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            print('Success!')
+            with connection.cursor() as cursor:
+                check_participants_query = 'SELECT * FROM time_db WHERE chat_id=%s'
 
-            result = cursor.execute(check_participants_query, chat_id)
-            connection.commit()
-            return result
+                result = cursor.execute(check_participants_query, chat_id)
+                connection.commit()
+                return result
+        except Exception as ex:
+            print('FAIL')
+            print(ex)
+
+
     def truncate(self):
         with connection.cursor() as cursor:
             truncate_users = 'TRUNCATE TABLE users'
