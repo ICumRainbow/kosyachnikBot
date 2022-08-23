@@ -178,8 +178,22 @@ class Storage:
         return str(rows['last_time'])
 
     async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str):
-        row2overwrite = (new_username, new_name, target_user_id)
-        with connection.cursor() as cursor:
-            add_row_query = "UPDATE `users` SET username=%s, name=%s WHERE user_id=%s"
-            cursor.execute(add_row_query, row2overwrite)
-            connection.commit()
+
+        try:
+            connection = pymysql.connect(
+                host=host,
+                port=3306,
+                user=user,
+                password=password,
+                database=db_name,
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            print('Success!')
+            row2overwrite = (new_username, new_name, target_user_id)
+            with connection.cursor() as cursor:
+                add_row_query = "UPDATE `users` SET username=%s, name=%s WHERE user_id=%s"
+                cursor.execute(add_row_query, row2overwrite)
+                connection.commit()
+        except Exception as ex:
+            print('FAIL')
+            print(ex)
