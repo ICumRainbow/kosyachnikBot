@@ -88,13 +88,13 @@ class Storage:
         # list_of_participants.append(username)
 
     def rows_exist(self, chat_id) -> bool:
-        if connected:
+
             with connection.cursor() as cursor:
                 rows_exist_query = 'SELECT * FROM users WHERE chat_id=%s'
-
-                result = cursor.execute(rows_exist_query, chat_id)
-                connection.commit()
-                return result
+                if connected:
+                    result = cursor.execute(rows_exist_query, chat_id)
+                    connection.commit()
+                    return result
 
     def rows_list(self, chat_id) -> list:
         # with open(self.storage_file_name) as f:
