@@ -1,14 +1,14 @@
 import logging
 import os
 import pymysql
-from config import host, user, db_name
-
+from config import host, user, db_name, password
 
 try:
     connection = pymysql.connect(
         host=host,
         port=3306,
         user=user,
+        password=password,
         database=db_name,
         cursorclass=pymysql.cursors.DictCursor
     )
@@ -142,11 +142,11 @@ if __name__ == '__main__':
 
     application.add_handlers(handlers)
 
-    application.run_polling()
+    # application.run_polling()
 
-#
-# application.run_webhook(listen="0.0.0.0",
-#                         port=PORT,
-#                         url_path=TOKEN,
-#                         webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
-#                         )
+
+application.run_webhook(listen="0.0.0.0",
+                        port=PORT,
+                        url_path=TOKEN,
+                        webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
+                        )

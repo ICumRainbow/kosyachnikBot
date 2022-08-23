@@ -4,7 +4,7 @@ from datetime import datetime
 import pymysql
 from pprint import pprint
 
-from config import host, user, db_name
+from config import host, user, db_name, password
 
 API_link = 'https://api.telegram.org/bot5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzFbYfRPc'
 CHAT_ID = -769270882
@@ -15,6 +15,7 @@ try:
         host=host,
         port=3306,
         user=user,
+        password=password,
         database=db_name,
         cursorclass=pymysql.cursors.DictCursor
     )
