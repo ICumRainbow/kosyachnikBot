@@ -14,7 +14,7 @@ async def pidor_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
     storage = Storage(chat_id)
 
     list_of_participants = []
-    for i in storage.rows_list():
+    for i in storage.rows_list(chat_id=chat_id):
         if i['chat_id'] == chat_id:
             list_of_participants.append(i['username'] or i['name'])
             print('#' * 20)
@@ -24,7 +24,7 @@ async def pidor_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=participants_text)
     await context.bot.send_message(chat_id=update.effective_chat.id, text=PROCESS_STARTING_MSG)
 
-    winner = choice(storage.rows_list())
+    winner = choice(storage.rows_list(chat_id=chat_id))
 
     _, winner_id, winner_username, winner_name, _ = winner.values()
 
