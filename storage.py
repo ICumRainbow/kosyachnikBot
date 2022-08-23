@@ -68,19 +68,19 @@ class Storage:
                 cursorclass=pymysql.cursors.DictCursor
             )
             print('Success!')
-
+            with connection.cursor() as cursor:
+                select_query = 'select * from users'
+                cursor.execute(select_query)
+                participants_list = cursor.fetchall()
+                for i in participants_list:
+                    if chat_id in i.values() and user_id in i.values():
+                        return True
         except Exception as ex:
             print('FAIL')
             print(ex)
 
 
-        with connection.cursor() as cursor:
-            select_query = 'select * from users'
-            cursor.execute(select_query)
-            participants_list = cursor.fetchall()
-            for i in participants_list:
-                if chat_id in i.values() and user_id in i.values():
-                    return True
+
 
     async def add_row(self, chat_id: int, user_id: int, username: str, name: str):
 
