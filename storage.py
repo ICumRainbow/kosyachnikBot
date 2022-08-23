@@ -10,22 +10,25 @@ API_link = 'https://api.telegram.org/bot5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzF
 CHAT_ID = -769270882
 
 
-try:
-    connection = pymysql.connect(
-        host=host,
-        port=3306,
-        user=user,
-        password=password,
-        database=db_name,
-        cursorclass=pymysql.cursors.DictCursor
-    )
-    print('Success!')
+def connected():
+    try:
+        connection = pymysql.connect(
+            host=host,
+            port=3306,
+            user=user,
+            password=password,
+            database=db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        print('Success!')
+        return True, connection
+    except Exception as ex:
+        print('FAIL')
+        print(ex)
+        return False
 
-except Exception as ex:
-    print('FAIL')
-    print(ex)
 
-connection.ping(reconnect=True)
+connected, connection = connected()
 
 
 class Storage:
@@ -39,11 +42,11 @@ class Storage:
         if not path.exists():
             self._create_storage_file()
 
-    def _create_storage_file(self):
-        """ Create storage if it does not exist and add headers. Just open storage otherwise """
-        with open(self.storage_file_name, 'w', newline='') as database:
-            writer = csv.DictWriter(database, fieldnames=self.headers)
-            writer.writeheader()
+    # def _create_storage_file(self):
+    #     """ Create storage if it does not exist and add headers. Just open storage otherwise """
+    #     with open(self.storage_file_name, 'w', newline='') as database:
+    #         writer = csv.DictWriter(database, fieldnames=self.headers)
+    #         writer.writeheader()
 
     def start_msg_exists(self) -> bool:
         path_start = Path('start.txt')
@@ -58,16 +61,7 @@ class Storage:
         # with open(self.storage_file_name, 'r') as list_of_participants_file:
         #     user_in_db = str(user_id) in list_of_participants_file.read()
         #     return user_in_db
-        try:
-            connection = pymysql.connect(
-                host=host,
-                port=3306,
-                user=user,
-                password=password,
-                database=db_name,
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            print('Success!')
+        if connected:
             with connection.cursor() as cursor:
                 select_query = 'select * from users'
                 cursor.execute(select_query)
@@ -75,105 +69,75 @@ class Storage:
                 for i in participants_list:
                     if chat_id in i.values() and user_id in i.values():
                         return True
-        except Exception as ex:
-            print('FAIL')
-            print(ex)
-
-
-
 
     async def add_row(self, chat_id: int, user_id: int, username: str, name: str):
 
         # list_of_participants.append(f'{user_id},{username}')
-        #coding: utf-8
+        # coding: utf-8
         # with open(self.storage_file_name, mode='a', encoding='utf-8') as database:
         #     database.write(f'{user_id},{username},{name},0\n')
         row = (chat_id, user_id, username, name, 0)
-        with connection.cursor() as cursor:
-            add_row_query = "INSERT INTO `users` VALUES(%s,%s,%s,%s, %s)"
-            cursor.execute(add_row_query, row)
-            connection.commit()
+        if connected:
+            with connection.cursor() as cursor:
+                add_row_query = "INSERT INTO `users` VALUES(%s,%s,%s,%s, %s)"
+                cursor.execute(add_row_query, row)
+                connection.commit()
         # print(list_of_participants)
         # with open('database/database.csv', mode='r') as database:
         #     print(database.readlines())
         # list_of_participants.append(username)
 
     def rows_exist(self, chat_id) -> bool:
-        with connection.cursor() as cursor:
-            rows_exist_query = 'SELECT * FROM users WHERE chat_id=%s'
+        if connected:
+            with connection.cursor() as cursor:
+                rows_exist_query = 'SELECT * FROM users WHERE chat_id=%s'
 
-            result = cursor.execute(rows_exist_query, chat_id)
-            connection.commit()
-            return result
+                result = cursor.execute(rows_exist_query, chat_id)
+                connection.commit()
+                return result
 
     def rows_list(self, chat_id) -> list:
         # with open(self.storage_file_name) as f:
         #     reader = csv.reader(f)
         #     data = list(reader)
         # return data
-        with connection.cursor() as cursor:
-            select_query = 'select * from users where chat_id=%s'
-            cursor.execute(select_query, chat_id)
-            participants_list = cursor.fetchall()
-            connection.commit()
-            return participants_list
+        if connected:
+            with connection.cursor() as cursor:
+                select_query = 'select * from users where chat_id=%s'
+                cursor.execute(select_query, chat_id)
+                participants_list = cursor.fetchall()
+                connection.commit()
+                return participants_list
 
     def check_participants(self, chat_id):
-        try:
-            connection = pymysql.connect(
-                host=host,
-                port=3306,
-                user=user,
-                password=password,
-                database=db_name,
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            print('Success!')
+        if connected:
             with connection.cursor() as cursor:
                 check_participants_query = 'SELECT * FROM users WHERE chat_id=%s'
                 participants_exist = cursor.execute(check_participants_query, chat_id)
             return participants_exist
-        except Exception as ex:
-            print('FAIL')
-            print(ex)
 
 
     async def increment_row(self, chat_id, winner_id: int):
 
-
-            # for chat_id, user_id, username, name, score in rows_list:
-                # if user_id == winner_id:
-                #     score = int(score) + 1
-            row = (chat_id, winner_id)
+        # for chat_id, user_id, username, name, score in rows_list:
+        # if user_id == winner_id:
+        #     score = int(score) + 1
+        row = (chat_id, winner_id)
+        if connected:
             with connection.cursor() as cursor:
                 increment_score_query = 'UPDATE `users` SET score = score + 1 WHERE chat_id = %s AND user_id =%s'
                 cursor.execute(increment_score_query, row)
                 connection.commit()
 
-
     def time_file_exists(self, chat_id):
 
-        try:
-            connection = pymysql.connect(
-                host=host,
-                port=3306,
-                user=user,
-                password=password,
-                database=db_name,
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            print('Success!')
+        if connected:
             with connection.cursor() as cursor:
                 check_participants_query = 'SELECT * FROM time_db WHERE chat_id=%s'
 
                 result = cursor.execute(check_participants_query, chat_id)
                 connection.commit()
                 return result
-        except Exception as ex:
-            print('FAIL')
-            print(ex)
-
-
     def truncate(self):
         with connection.cursor() as cursor:
             truncate_users = 'TRUNCATE TABLE users'
@@ -182,6 +146,7 @@ class Storage:
             cursor.execute(truncate_time)
             cursor.execute(truncate_users)
             connection.commit()
+
     def create_time_file(self, chat_id: int):
         now = datetime.now()
         current_time = now.strftime('%Y-%m-%d %H:%M:%S:%f')
@@ -192,52 +157,27 @@ class Storage:
         #     # print(split)
         #     timefile.write(current_time)
         row = (chat_id, current_time)
-        with connection.cursor() as cursor:
-            create_time_file_query = "INSERT INTO `time_db` VALUES(%s, %s)"
-            cursor.execute(create_time_file_query, row)
-            connection.commit()
-
+        if connected:
+            with connection.cursor() as cursor:
+                create_time_file_query = "INSERT INTO `time_db` VALUES(%s, %s)"
+                cursor.execute(create_time_file_query, row)
+                connection.commit()
 
     def time_file_read(self, chat_id):
-        try:
-            connection = pymysql.connect(
-                host=host,
-                port=3306,
-                user=user,
-                password=password,
-                database=db_name,
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            print('Success!')
+        if connected:
             with connection.cursor() as cursor:
                 time_file_read_query = 'SELECT last_time FROM time_db WHERE chat_id=%s'
                 cursor.execute(time_file_read_query, chat_id)
                 rows = cursor.fetchone()
                 connection.commit()
             return str(rows['last_time'])
-        except Exception as ex:
-            print('FAIL')
-            print(ex)
-
 
 
     async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str):
 
-        try:
-            connection = pymysql.connect(
-                host=host,
-                port=3306,
-                user=user,
-                password=password,
-                database=db_name,
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            print('Success!')
+        if connected:
             row2overwrite = (new_username, new_name, target_user_id)
             with connection.cursor() as cursor:
                 add_row_query = "UPDATE `users` SET username=%s, name=%s WHERE user_id=%s"
                 cursor.execute(add_row_query, row2overwrite)
                 connection.commit()
-        except Exception as ex:
-            print('FAIL')
-            print(ex)
