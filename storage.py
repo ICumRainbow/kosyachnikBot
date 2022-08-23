@@ -199,12 +199,27 @@ class Storage:
 
 
     def time_file_read(self, chat_id):
-        with connection.cursor() as cursor:
-            time_file_read_query = 'SELECT last_time FROM time_db WHERE chat_id=%s'
-            cursor.execute(time_file_read_query, chat_id)
-            rows = cursor.fetchone()
-            connection.commit()
-        return str(rows['last_time'])
+        try:
+            connection = pymysql.connect(
+                host=host,
+                port=3306,
+                user=user,
+                password=password,
+                database=db_name,
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            print('Success!')
+            with connection.cursor() as cursor:
+                time_file_read_query = 'SELECT last_time FROM time_db WHERE chat_id=%s'
+                cursor.execute(time_file_read_query, chat_id)
+                rows = cursor.fetchone()
+                connection.commit()
+            return str(rows['last_time'])
+        except Exception as ex:
+            print('FAIL')
+            print(ex)
+
+
 
     async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str):
 
