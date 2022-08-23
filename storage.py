@@ -32,7 +32,7 @@ except Exception as ex:
     print('FAIL')
     print(ex)
 
-
+connection.ping(reconnect=True)
 
 
 class Storage:
