@@ -55,13 +55,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
     storage = Storage(chat_id)
-
     # Add new row (when registered)
     username = update.effective_user.username or ''
     user_id = int(update.effective_user.id)
     first_name = update.effective_user.first_name
     last_name = update.effective_user.last_name
-    print(first_name)
     name = (first_name + ' ' + last_name) if last_name else first_name
 
     if not storage.check_row_existance(user_id=user_id, chat_id=chat_id):
@@ -107,7 +105,6 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     pidor_statistics = []
     rows_list = storage.rows_list(chat_id)
-    print(rows_list)
     for row in rows_list:
         score = row['score']
         if score < 5:

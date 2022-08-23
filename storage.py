@@ -107,7 +107,6 @@ class Storage:
             cursor.execute(select_query, chat_id)
             participants_list = cursor.fetchall()
             connection.commit()
-            print(participants_list)
             return participants_list
 
     def check_participants(self, chat_id):
@@ -137,7 +136,14 @@ class Storage:
             result = cursor.execute(check_participants_query, chat_id)
             connection.commit()
             return result
+    def truncate(self):
+        with connection.cursor() as cursor:
+            truncate_users = 'TRUNCATE TABLE users'
+            truncate_time = 'TRUNCATE TABLE time_db'
 
+            cursor.execute(truncate_time)
+            cursor.execute(truncate_users)
+            connection.commit()
     def create_time_file(self, chat_id: int):
         now = datetime.now()
         current_time = now.strftime('%Y-%m-%d %H:%M:%S:%f')
