@@ -119,10 +119,24 @@ class Storage:
             return participants_list
 
     def check_participants(self, chat_id):
-        with connection.cursor() as cursor:
-            check_participants_query = 'SELECT * FROM users WHERE chat_id=%s'
-            participants_exist = cursor.execute(check_participants_query, chat_id)
-        return participants_exist
+        try:
+            connection = pymysql.connect(
+                host=host,
+                port=3306,
+                user=user,
+                password=password,
+                database=db_name,
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            print('Success!')
+            with connection.cursor() as cursor:
+                check_participants_query = 'SELECT * FROM users WHERE chat_id=%s'
+                participants_exist = cursor.execute(check_participants_query, chat_id)
+            return participants_exist
+        except Exception as ex:
+            print('FAIL')
+            print(ex)
+
 
     async def increment_row(self, chat_id, winner_id: int):
 
