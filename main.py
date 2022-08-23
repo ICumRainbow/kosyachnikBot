@@ -25,6 +25,10 @@ except Exception as ex:
     print('FAIL')
     print(ex)
 
+connection.ping(reconnect=True)
+
+
+
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 
