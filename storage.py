@@ -146,14 +146,23 @@ class Storage:
             cursor.execute(create_time_file_query, row)
             connection.commit()
 
-    async def time_file_read(self, chat_id):
+    async def retrieve_time(self, chat_id: int):
         connection = await self.connect()
         with connection.cursor() as cursor:
             time_file_read_query = 'SELECT last_time FROM contest_groups WHERE chat_id=%s'
             cursor.execute(time_file_read_query, chat_id)
             rows = cursor.fetchone()
             connection.commit()
-        return str(rows['last_time']), str(rows['winner_name'])
+        return str(rows['last_time'])
+
+    async def retrieve_last_winner(self,chat_id: int):
+        connection = await self.connect()
+        with connection.cursor() as cursor:
+            time_file_read_query = 'SELECT last_time FROM contest_groups WHERE chat_id=%s'
+            cursor.execute(time_file_read_query, chat_id)
+            rows = cursor.fetchone()
+            connection.commit()
+        return str(rows['winner_name'])
 
     async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str):
         connection = await self.connect()
