@@ -40,7 +40,7 @@ async def time_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
     storage = Storage()
 
     now = datetime.now()
-    last_time, winner_name = datetime.strptime(await storage.time_file_read(chat_id=chat_id), '%Y-%m-%d %H:%M:%S')
+    last_time, winner_name = datetime.strptime(await storage.time_file_read(chat_id=chat_id), '%Y-%m-%d %H:%M:%S'), await storage.time_file_read(chat_id=chat_id)
     delta = last_time - now + timedelta(days=1)
     minutes, seconds = divmod(delta.seconds, 60)
     hours, minutes = divmod(minutes, 60)
