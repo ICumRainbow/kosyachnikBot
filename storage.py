@@ -31,7 +31,7 @@ class Storage:
 
     async def connect(self, attempt=0, update=Update, context= ContextTypes.DEFAULT_TYPE):
         if attempt > MAX_ATTEMPTS:
-            await context.bot.send_message(chat_id=-755894472, text=ERROR_MSG)
+            await context.bot.send_message(chat_id=-719794843, text=ERROR_MSG)
         try:
             connection = pymysql.connect(
                 host=host,
