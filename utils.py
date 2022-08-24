@@ -40,14 +40,14 @@ async def time_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
     storage = Storage()
 
     now = datetime.now()
-    last_time = datetime.strptime(await storage.time_file_read(chat_id=chat_id), '%Y-%m-%d %H:%M:%S')
+    last_time, winner_name = datetime.strptime(await storage.time_file_read(chat_id=chat_id), '%Y-%m-%d %H:%M:%S')
     delta = last_time - now + timedelta(days=1)
     minutes, seconds = divmod(delta.seconds, 60)
     hours, minutes = divmod(minutes, 60)
 
     verbose_format_time(hours, minutes, seconds)
     time_string = verbose_format_time(hours, minutes, seconds)
-    wait_text = WAIT_MSG.format(time=time_string)
+    wait_text = WAIT_MSG.format(time=time_string, winner_name=winner_name)
 
     return delta, wait_text
 

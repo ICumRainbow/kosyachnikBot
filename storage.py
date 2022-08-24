@@ -153,7 +153,7 @@ class Storage:
             cursor.execute(time_file_read_query, chat_id)
             rows = cursor.fetchone()
             connection.commit()
-        return str(rows['last_time'])
+        return str(rows['last_time']), str(rows['winner_name'])
 
     async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str):
         connection = await self.connect()
