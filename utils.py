@@ -35,7 +35,7 @@ def verbose_format_time(h, m, s) -> str:
 verbose_format_time(1, 31, 21)
 
 
-def time_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def time_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
     storage = Storage()
 
