@@ -22,9 +22,9 @@ def verbose_format_time(h, m, s) -> str:
         else:
             return str(val) + words[2]
 
-    time_dict['hours'] = determine_suffix(h, (' часа, ', ' час,', ' часов, '))
-    time_dict['minutes'] = determine_suffix(m, (' минуты, ', ' минута, ', ' минут, '))
-    time_dict['seconds'] = determine_suffix(s, (' секунды', ' секунда', ' секунд'))
+    time_dict['hours'] = determine_suffix(h, (' hours, ', ' hour,', ' hours, '))
+    time_dict['minutes'] = determine_suffix(m, (' minutes, ', ' minute, ', ' minutes, '))
+    time_dict['seconds'] = determine_suffix(s, (' seconds', ' second', ' seconds'))
     time = ''
     for keys in time_dict:
         time = time + time_dict[keys]

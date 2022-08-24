@@ -1,10 +1,15 @@
-Добро пожаловать в ПидорБота!
-Этот бот позволяет выяснить, кто из участников группы является пидором, используя технологию Pidor — новое слово в сфере пидоролокации.
-В вашем распоряжении (на данный момент) четыре команды:
-/start — эта команда выводит это сообщение. Не знаю, для чего вы будете её использовать в дальнейшем, но она есть!
-/register — с помощью этой команды вы вступаете в игру!
-/pidor — эта команда запускает самый главный процесс — собственно, поиск пидора
-/stats — эта команда покажет вам статистику на данный момент: у кого сколько "очков" и кто какой титул заработал
+Welcome to the Kosyachnik Telegram Bot!
+This bot can help you identify kosyachniks among your employees using Kosyachnik system - the last word in staff management technology.
+There are currently 4 commands at your disposal:
+/start — this command displays this message. IDK why would you use it in the future, but the bot has it!
+/register — use this command to join the game and put yourself at risk of termination! How fun!
+/kosyachnik_search — this command runs the main process — kosyachnik search.
+/stats — this command shows you current statistics: who has how many points and who has which rank.
 
-Если бот каким-то невероятным образом выбрал в качестве пидора Вас — не расстраивайтесь, ведь с машиной бесполезно спорить!
-Попробуйте лучше хорошенько подумать о своей ориентации, может, где-то в глубине души вы латентный гей?
+<b>Appendix for employees who were chosen by the bot</b>
+If the bot somehow (unbelievable!) chose you as kosyachnik of the day - don't be upset, because it's needless to argue with the machine!
+Better try to analyze - what are your shortcomings? Do you have more of them than anybody does? Try to figure out what you can improve about yourself as an employee.
+
+<b>Appendix for company owners, CEOs and managers who were chosen by the bot</b>
+Well, this is most likely a bug in our system...
+Kidding! You're the kosyachnik of the day, admit it!

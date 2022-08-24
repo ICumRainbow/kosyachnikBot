@@ -3,7 +3,6 @@ from pathlib import Path
 from datetime import datetime
 
 import pymysql
-from telegram import Update
 from telegram.ext import ContextTypes
 
 from config import host, user, db_name, password

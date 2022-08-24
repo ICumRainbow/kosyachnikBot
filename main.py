@@ -6,9 +6,9 @@ from config import host, user, db_name, password
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 
-from messages import PREFIX_SIMPLE, PREFIX_DIRTY, PREFIX_LORD, PREFIX_GENERAL, ALREADY_IN, \
-    DEFAULT_START_MSG, ZERO_PIDORS, NO_STATS, PIDOR_STATS, JOINED_MSG
-from pidor_func import pidor_func
+from messages import PREFIX_SIMPLE, PREFIX_SLACKER, PREFIX_CEO, PREFIX_TERMINATION, ALREADY_IN, \
+    DEFAULT_START_MSG, ZERO_PARTICIPANTS, NO_STATS, KOSYACHNIK_STATS, JOINED_MSG
+from kosyachnik_func import kosyachnik_func
 from utils import time_func
 from storage import Storage
 
@@ -68,20 +68,20 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=chat_id, text=ALREADY_IN)
 
 
-scoreboard = {}
+# scoreboard = {}
 
 
-async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def kosyachnik_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
     storage = Storage()
 
     if not await storage.check_participants(chat_id):  # If no users registered, do not find one
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=ZERO_PIDORS)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=ZERO_PARTICIPANTS)
         return
 
     if not await storage.time_row_exists(chat_id=chat_id):
-        winner_name = await pidor_func(update, context)
-        await storage.create_time_file(chat_id=chat_id, winner_name=winner_name) #нужно понять как это функция должна принимать имя победителя которое возвращает pidor_func
+        winner_name = await kosyachnik_func(update, context)
+        await storage.create_time_file(chat_id=chat_id, winner_name=winner_name)  # нужно понять как это функция должна принимать имя победителя которое возвращает pidor_func
         return
 
     delta, wait_text, winner_name = await time_func(update, context)
@@ -89,7 +89,7 @@ async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if delta.days == 0:
         await context.bot.send_message(chat_id=update.effective_chat.id, text=wait_text)
     else:
-        winner_name = await pidor_func(update, context)
+        winner_name = await kosyachnik_func(update, context)
         await storage.create_time_file(chat_id=chat_id, winner_name=winner_name)
 
 
@@ -101,26 +101,27 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=chat_id, text=NO_STATS)
         return
 
-    pidor_statistics = []
+    kosyachnik_statistics = []
     rows_list = await storage.retrieve_rows_list(chat_id)
     for row in rows_list:
         score = row['score']
         if score < 5:
             prefix = PREFIX_SIMPLE
         elif score < 10:
-            prefix = PREFIX_DIRTY
+            prefix = PREFIX_SLACKER
         elif score < 20:
-            prefix = PREFIX_LORD
+            prefix = PREFIX_CEO
         else:
-            prefix = PREFIX_GENERAL
+            prefix = PREFIX_TERMINATION
         name = row['username'] or row['name']
-        pidor_str = f'{name} - {prefix}'
+        kosyachnik_str = f'{name} - {prefix}'
 
-        pidor_statistics.append(pidor_str)
+        kosyachnik_statistics.append(kosyachnik_str)
 
-    pidor_statistics = '\n'.join(pidor_statistics)
-    pidor_stats_text = PIDOR_STATS.format(pidor_statistics=pidor_statistics)
-    await context.bot.send_message(chat_id=chat_id, text=pidor_stats_text)
+
+    kosyachnik_statistics = '\n'.join(kosyachnik_statistics)
+    kosyachnik_stats_text = KOSYACHNIK_STATS.format(kosyachnik_statistics=kosyachnik_statistics)
+    await context.bot.send_message(chat_id=chat_id, text=kosyachnik_stats_text)
 
 
 PORT = int(os.environ.get('PORT', '8443'))
@@ -131,7 +132,7 @@ if __name__ == '__main__':
     handlers = [
         CommandHandler('start', start),
         CommandHandler('register', register),
-        CommandHandler('pidor', pidor),
+        CommandHandler('kosyachnik_search', kosyachnik_search),
         CommandHandler('stats', stats)
     ]
 

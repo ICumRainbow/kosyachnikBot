@@ -8,7 +8,7 @@ from messages import PROCESS_STARTING_MSG, PARTICIPANTS_LIST, WINNER_MSG
 from storage import Storage
 
 
-async def pidor_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def kosyachnik_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
     storage = Storage()
     rows_list = await storage.retrieve_rows_list(chat_id=chat_id)
