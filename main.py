@@ -79,9 +79,9 @@ async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=update.effective_chat.id, text=ZERO_PIDORS)
         return
 
-    if not storage.time_row_exists(chat_id=chat_id):
+    if not await storage.time_row_exists(chat_id=chat_id):
         winner_name = await pidor_func(update, context)
-        storage.create_time_file(chat_id=chat_id, winner_name=winner_name) #нужно понять как это функция должна принимать имя победителя которое возвращает pidor_func
+        await storage.create_time_file(chat_id=chat_id, winner_name=winner_name) #нужно понять как это функция должна принимать имя победителя которое возвращает pidor_func
         return
 
     delta, wait_text = time_func(update, context)
@@ -90,7 +90,7 @@ async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=update.effective_chat.id, text=wait_text)
     else:
         await pidor_func(update, context)
-        storage.create_time_file(chat_id=chat_id)
+        await storage.create_time_file(chat_id=chat_id)
 
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -102,7 +102,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     pidor_statistics = []
-    rows_list = storage.retrieve_rows_list(chat_id)
+    rows_list = await storage.retrieve_rows_list(chat_id)
     for row in rows_list:
         score = row['score']
         if score < 5:
