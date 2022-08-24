@@ -59,7 +59,7 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     last_name = update.effective_user.last_name
     name = (first_name + ' ' + last_name) if last_name else first_name
 
-    if not storage.check_row_existance(user_id=user_id, chat_id=chat_id):
+    if not await storage.check_row_existance(user_id=user_id, chat_id=chat_id):
         joined_text = JOINED_MSG.format(name=username or name)
         await storage.add_row(chat_id, user_id, username, name)
         await context.bot.send_message(chat_id=chat_id, text=joined_text)
@@ -75,7 +75,7 @@ async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
     storage = Storage()
 
-    if not storage.check_participants(chat_id):  # If no users registered, do not find one
+    if not await storage.check_participants(chat_id):  # If no users registered, do not find one
         await context.bot.send_message(chat_id=update.effective_chat.id, text=ZERO_PIDORS)
         return
 
@@ -96,7 +96,7 @@ async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
     storage = Storage()
-    rows_exist = storage.rows_exist(chat_id=chat_id)
+    rows_exist = await storage.rows_exist(chat_id=chat_id)
     if not rows_exist:
         await context.bot.send_message(chat_id=chat_id, text=NO_STATS)
         return
