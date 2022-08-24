@@ -50,7 +50,7 @@ async def time_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
     time_string = verbose_format_time(hours, minutes, seconds)
     wait_text = WAIT_MSG.format(time=time_string, winner_name=winner_name)
 
-    return delta, wait_text
+    return delta, wait_text, winner_name
 
 
 # def compare_versions(version1: str, version2: str):
