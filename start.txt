@@ -1,14 +1,19 @@
 Welcome to the Kosyachnik Telegram Bot!
 This bot can help you identify kosyachniks among your employees using Kosyachnik system - the last word in staff management technology.
+
+
 There are currently 4 commands at your disposal:
+
 /start — this command displays this message. IDK why would you use it in the future, but the bot has it!
 /register — use this command to join the game and put yourself at risk of termination! How fun!
 /kosyachnik_search — this command runs the main process — kosyachnik search.
 /stats — this command shows you current statistics: who has how many points and who has which rank.
 
+
 <b>Appendix for employees who were chosen by the bot</b>
 If the bot somehow (unbelievable!) chose you as kosyachnik of the day - don't be upset, because it's needless to argue with the machine!
 Better try to analyze - what are your shortcomings? Do you have more of them than anybody does? Try to figure out what you can improve about yourself as an employee.
+
 
 <b>Appendix for company owners, CEOs and managers who were chosen by the bot</b>
 Well, this is most likely a bug in our system...

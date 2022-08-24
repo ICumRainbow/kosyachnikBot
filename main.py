@@ -1,6 +1,8 @@
 import logging
 import os
 import pymysql
+from telegram.constants import ParseMode
+
 from config import host, user, db_name, password
 
 from telegram import Update
@@ -45,7 +47,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     storage = Storage()
 
     text = storage.start_message() if storage.start_msg_exists() else DEFAULT_START_MSG
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=text)
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=text, parse_mode=ParseMode.HTML)
 
 
 async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -81,7 +83,7 @@ async def kosyachnik_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if not await storage.time_row_exists(chat_id=chat_id):
         winner_name = await kosyachnik_func(update, context)
-        await storage.create_time_file(chat_id=chat_id, winner_name=winner_name)  # нужно понять как это функция должна принимать имя победителя которое возвращает pidor_func
+        await storage.create_time_file(chat_id=chat_id, winner_name=winner_name)
         return
 
     delta, wait_text, winner_name = await time_func(update, context)
@@ -101,27 +103,35 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=chat_id, text=NO_STATS)
         return
 
+
+    prefixes = {
+        5: PREFIX_SIMPLE,
+        10: PREFIX_SLACKER,
+        20: PREFIX_CEO,
+        100000000: PREFIX_TERMINATION
+    }
+
     kosyachnik_statistics = []
     rows_list = await storage.retrieve_rows_list(chat_id)
     for row in rows_list:
         score = row['score']
-        if score < 5:
-            prefix = PREFIX_SIMPLE
-        elif score < 10:
-            prefix = PREFIX_SLACKER
-        elif score < 20:
-            prefix = PREFIX_CEO
-        else:
-            prefix = PREFIX_TERMINATION
+        prefix = {(prefixes[key] if score < key else prefixes[0]) for key in prefixes.keys()}
+        # if score < 5:
+        #     prefix = PREFIX_SIMPLE
+        # elif score < 10:
+        #     prefix = PREFIX_SLACKER
+        # elif score < 20:
+        #     prefix = PREFIX_CEO
+        # else:
+        #     prefix = PREFIX_TERMINATION
         name = row['username'] or row['name']
         kosyachnik_str = f'{name} - {prefix}'
 
         kosyachnik_statistics.append(kosyachnik_str)
 
-
     kosyachnik_statistics = '\n'.join(kosyachnik_statistics)
-    kosyachnik_stats_text = KOSYACHNIK_STATS.format(kosyachnik_statistics=kosyachnik_statistics)
-    await context.bot.send_message(chat_id=chat_id, text=kosyachnik_stats_text)
+    kosyachnik_message = KOSYACHNIK_STATS.format(kosyachnik_statistics=kosyachnik_statistics)
+    await context.bot.send_message(chat_id=chat_id, text=kosyachnik_message)
 
 
 PORT = int(os.environ.get('PORT', '8443'))
