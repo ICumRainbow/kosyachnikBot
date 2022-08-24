@@ -57,7 +57,7 @@ class Storage:
             start_text = f.read()
             return start_text
 
-    def check_row_existance(self, chat_id: int, user_id: int):
+    async def check_row_existance(self, chat_id: int, user_id: int):
         connection = await self.connect()
         with connection.cursor() as cursor:
             select_query = 'select * from users'
@@ -76,7 +76,7 @@ class Storage:
             cursor.execute(add_row_query, row)
             connection.commit()
 
-    def rows_exist(self, chat_id) -> bool:
+    async def rows_exist(self, chat_id) -> bool:
         connection = await self.connect()
         with connection.cursor() as cursor:
             rows_exist_query = 'SELECT * FROM users WHERE chat_id=%s'
@@ -84,7 +84,7 @@ class Storage:
             connection.commit()
             return result
 
-    def retrieve_rows_list(self, chat_id) -> list:
+    async def retrieve_rows_list(self, chat_id) -> list:
         # with open(self.storage_file_name) as f:
         #     reader = csv.reader(f)
         #     data = list(reader)
@@ -97,7 +97,7 @@ class Storage:
             connection.commit()
             return participants_list
 
-    def check_participants(self, chat_id):
+    async def check_participants(self, chat_id):
         connection = await self.connect()
         with connection.cursor() as cursor:
             check_participants_query = 'SELECT * FROM users WHERE chat_id=%s'
@@ -116,7 +116,7 @@ class Storage:
             cursor.execute(increment_score_query, row)
             connection.commit()
 
-    def time_row_exists(self, chat_id):
+    async def time_row_exists(self, chat_id):
         connection = await self.connect()
         with connection.cursor() as cursor:
             check_time_file_query = 'SELECT * FROM contest_groups WHERE chat_id=%s'
@@ -125,7 +125,7 @@ class Storage:
 
             return result
 
-    def truncate(self):
+    async def truncate(self):
         connection = await self.connect()
         with connection.cursor() as cursor:
             truncate_users = 'TRUNCATE TABLE users'
@@ -134,7 +134,7 @@ class Storage:
             cursor.execute(truncate_users)
             connection.commit()
 
-    def create_time_file(self, chat_id: int, winner_name):
+    async def create_time_file(self, chat_id: int, winner_name):
         now = datetime.now()
         current_time = now.strftime('%Y-%m-%d %H:%M:%S:%f')
 
@@ -145,7 +145,7 @@ class Storage:
             cursor.execute(create_time_file_query, row)
             connection.commit()
 
-    def time_file_read(self, chat_id):
+    async def time_file_read(self, chat_id):
         connection = await self.connect()
         with connection.cursor() as cursor:
             time_file_read_query = 'SELECT last_time FROM contest_groups WHERE chat_id=%s'
