@@ -84,7 +84,7 @@ async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await storage.create_time_file(chat_id=chat_id, winner_name=winner_name) #нужно понять как это функция должна принимать имя победителя которое возвращает pidor_func
         return
 
-    delta, wait_text = time_func(update, context)
+    delta, wait_text = await time_func(update, context)
 
     if delta.days == 0:
         await context.bot.send_message(chat_id=update.effective_chat.id, text=wait_text)
