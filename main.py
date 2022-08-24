@@ -3,32 +3,6 @@ import os
 import pymysql
 from config import host, user, db_name, password
 
-try:
-    connection = pymysql.connect(
-        host=host,
-        port=3306,
-        user=user,
-        password=password,
-        database=db_name,
-        cursorclass=pymysql.cursors.DictCursor
-    )
-    print('Success!')
-
-    # try:
-        # cursor = connection.cursor()
-
-        # create table
-        # with connection.cursor() as cursor:
-        #     create_table_query = "CREATE TABLE 'users'(id int"
-
-except Exception as ex:
-    print('FAIL')
-    print(ex)
-
-connection.ping(reconnect=True)
-
-
-
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 
@@ -37,6 +11,25 @@ from messages import PREFIX_SIMPLE, PREFIX_DIRTY, PREFIX_LORD, PREFIX_GENERAL, A
 from pidor_func import pidor_func
 from utils import time_func
 from storage import Storage
+
+# try:
+#     connection = pymysql.connect(
+#         host=host,
+#         port=3306,
+#         user=user,
+#         password=password,
+#         database=db_name,
+#         cursorclass=pymysql.cursors.DictCursor
+#     )
+#     print('Success!')
+#
+#
+# except Exception as ex:
+#     print('FAIL')
+#     print(ex)
+
+# connection.ping(reconnect=True)
+
 
 API_link = 'https://api.telegram.org/bot5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzFbYfRPc'
 CHAT_ID = -769270882
@@ -49,8 +42,7 @@ TOKEN = '5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzFbYfRPc'
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.message.chat.id
-    storage = Storage(chat_id)
+    storage = Storage()
 
     text = storage.start_message() if storage.start_msg_exists() else DEFAULT_START_MSG
     await context.bot.send_message(chat_id=update.effective_chat.id, text=text)
@@ -58,7 +50,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
-    storage = Storage(chat_id)
+    storage = Storage()
     # storage.truncate()
     # Add new row (when registered)
     username = update.effective_user.username or ''
@@ -81,15 +73,15 @@ scoreboard = {}
 
 async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
-    storage = Storage(chat_id)
+    storage = Storage()
 
     if not storage.check_participants(chat_id):  # If no users registered, do not find one
         await context.bot.send_message(chat_id=update.effective_chat.id, text=ZERO_PIDORS)
         return
 
-    if not storage.time_file_exists(chat_id=chat_id):
-        await pidor_func(update, context)
-        storage.create_time_file(chat_id=chat_id)
+    if not storage.time_row_exists(chat_id=chat_id):
+        winner_name = await pidor_func(update, context)
+        storage.create_time_file(chat_id=chat_id, winner_name=winner_name) #нужно понять как это функция должна принимать имя победителя которое возвращает pidor_func
         return
 
     delta, wait_text = time_func(update, context)
@@ -100,16 +92,17 @@ async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await pidor_func(update, context)
         storage.create_time_file(chat_id=chat_id)
 
+
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
-    storage = Storage(chat_id)
+    storage = Storage()
     rows_exist = storage.rows_exist(chat_id=chat_id)
     if not rows_exist:
         await context.bot.send_message(chat_id=chat_id, text=NO_STATS)
         return
 
     pidor_statistics = []
-    rows_list = storage.rows_list(chat_id)
+    rows_list = storage.retrieve_rows_list(chat_id)
     for row in rows_list:
         score = row['score']
         if score < 5:
@@ -146,9 +139,8 @@ if __name__ == '__main__':
 
     # application.run_polling()
 
-
-application.run_webhook(listen="0.0.0.0",
-                        port=PORT,
-                        url_path=TOKEN,
-                        webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
-                        )
+    application.run_webhook(listen="0.0.0.0",
+                            port=PORT,
+                            url_path=TOKEN,
+                            webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
+                            )

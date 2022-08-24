@@ -50,3 +50,38 @@ def time_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
     wait_text = WAIT_MSG.format(time=time_string)
 
     return delta, wait_text
+
+
+# def compare_versions(version1: str, version2: str):
+#     if '.' in version1:
+#         version1 = version1.split('.')
+#     if '.' in version2:
+#         version2 = version2.split('.')
+#     else:
+#         version2 =
+#     if len(version1) == len(version2):
+#         for num1, num2 in zip(version1, version2):
+#             if num1 != num2:
+#                 return (num1 > num2)
+#         return True
+#     else:
+#         v1 = 1
+#         v2 = 1
+#         version_1st = []
+#         version_2nd = []
+#         for number in version1:
+#             number = int(number)
+#             number = number * v1
+#             version_1st.append(number)
+#             v1 **= 2
+#         for number in version2:
+#             number = int(number)
+#             number = number * v2
+#             version_2nd.append(number)
+#             v2 **= 2
+#             print(version_2nd)
+#         return sum(version_1st) > sum(version_2nd)
+#
+#
+# compare_versions("10.4", "11")
+
