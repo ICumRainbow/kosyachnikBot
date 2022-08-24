@@ -12,6 +12,7 @@ from messages import ERROR_MSG
 API_link = 'https://api.telegram.org/bot5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzFbYfRPc'
 MAX_ATTEMPTS = 10
 
+
 class Storage:
     headers = ['id', 'username', 'name', 'score']
 
@@ -29,7 +30,7 @@ class Storage:
     #         writer = csv.DictWriter(database, fieldnames=self.headers)
     #         writer.writeheader()
 
-    async def connect(self, attempt=0, update=Update, context= ContextTypes.DEFAULT_TYPE):
+    async def connect(self, attempt=0, context=ContextTypes.DEFAULT_TYPE):
         if attempt > MAX_ATTEMPTS:
             await context.bot.send_message(chat_id=-719794843, text=ERROR_MSG)
         try:

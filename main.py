@@ -89,8 +89,8 @@ async def pidor(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if delta.days == 0:
         await context.bot.send_message(chat_id=update.effective_chat.id, text=wait_text)
     else:
-        await pidor_func(update, context)
-        await storage.create_time_file(chat_id=chat_id)
+        winner_name = await pidor_func(update, context)
+        await storage.create_time_file(chat_id=chat_id, winner_name=winner_name)
 
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
