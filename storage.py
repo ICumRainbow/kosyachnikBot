@@ -58,7 +58,7 @@ class Storage:
             return start_text
 
     def check_row_existance(self, chat_id: int, user_id: int):
-        connection = self.connect()
+        connection = await self.connect()
         with connection.cursor() as cursor:
             select_query = 'select * from users'
             cursor.execute(select_query)
@@ -70,14 +70,14 @@ class Storage:
     async def add_row(self, chat_id: int, user_id: int, username: str, name: str):
 
         row = (chat_id, user_id, username, name, 0)
-        connection = self.connect()
+        connection = await self.connect()
         with connection.cursor() as cursor:
             add_row_query = "INSERT INTO users VALUES(%s,%s,%s,%s, %s)"
             cursor.execute(add_row_query, row)
             connection.commit()
 
     def rows_exist(self, chat_id) -> bool:
-        connection = self.connect()
+        connection = await self.connect()
         with connection.cursor() as cursor:
             rows_exist_query = 'SELECT * FROM users WHERE chat_id=%s'
             result = cursor.execute(rows_exist_query, chat_id)
@@ -89,7 +89,7 @@ class Storage:
         #     reader = csv.reader(f)
         #     data = list(reader)
         # return data
-        connection = self.connect()
+        connection = await self.connect()
         with connection.cursor() as cursor:
             select_query = 'select * from users where chat_id=%s'
             cursor.execute(select_query, chat_id)
@@ -98,7 +98,7 @@ class Storage:
             return participants_list
 
     def check_participants(self, chat_id):
-        connection = self.connect()
+        connection = await self.connect()
         with connection.cursor() as cursor:
             check_participants_query = 'SELECT * FROM users WHERE chat_id=%s'
             participants_exist = cursor.execute(check_participants_query, chat_id)
@@ -110,14 +110,14 @@ class Storage:
         # if user_id == winner_id:
         #     score = int(score) + 1
         row = (chat_id, winner_id)
-        connection = self.connect()
+        connection = await self.connect()
         with connection.cursor() as cursor:
             increment_score_query = 'UPDATE users SET score = score + 1 WHERE chat_id = %s AND user_id =%s'
             cursor.execute(increment_score_query, row)
             connection.commit()
 
     def time_row_exists(self, chat_id):
-        connection = self.connect()
+        connection = await self.connect()
         with connection.cursor() as cursor:
             check_time_file_query = 'SELECT * FROM contest_groups WHERE chat_id=%s'
             result = cursor.execute(check_time_file_query, chat_id)
@@ -126,7 +126,7 @@ class Storage:
             return result
 
     def truncate(self):
-        connection = self.connect()
+        connection = await self.connect()
         with connection.cursor() as cursor:
             truncate_users = 'TRUNCATE TABLE users'
             truncate_time = 'TRUNCATE TABLE contest_groups'
@@ -139,14 +139,14 @@ class Storage:
         current_time = now.strftime('%Y-%m-%d %H:%M:%S:%f')
 
         row = (chat_id, current_time, winner_name)
-        connection = self.connect()
+        connection = await self.connect()
         with connection.cursor() as cursor:
             create_time_file_query = "INSERT INTO contest_groups VALUES(%s, %s, %s)"
             cursor.execute(create_time_file_query, row)
             connection.commit()
 
     def time_file_read(self, chat_id):
-        connection = self.connect()
+        connection = await self.connect()
         with connection.cursor() as cursor:
             time_file_read_query = 'SELECT last_time FROM contest_groups WHERE chat_id=%s'
             cursor.execute(time_file_read_query, chat_id)
@@ -155,7 +155,7 @@ class Storage:
         return str(rows['last_time'])
 
     async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str):
-        connection = self.connect()
+        connection = await self.connect()
         row2overwrite = (new_username, new_name, target_user_id)
         with connection.cursor() as cursor:
             add_row_query = "UPDATE users SET username=%s, name=%s WHERE user_id=%s"
