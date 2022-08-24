@@ -115,7 +115,10 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     rows_list = await storage.retrieve_rows_list(chat_id)
     for row in rows_list:
         score = row['score']
-        prefix = {(prefixes[key] if score < key else prefixes[0]) for key in prefixes.values()}
+        for key in prefixes.keys():
+            if score < key:
+                prefix = prefixes[key]
+                break
         # if score < 5:
         #     prefix = PREFIX_SIMPLE
         # elif score < 10:
