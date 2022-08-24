@@ -158,7 +158,7 @@ class Storage:
     async def retrieve_last_winner(self,chat_id: int):
         connection = await self.connect()
         with connection.cursor() as cursor:
-            time_file_read_query = 'SELECT last_time FROM contest_groups WHERE chat_id=%s'
+            time_file_read_query = 'SELECT winner_name FROM contest_groups WHERE chat_id=%s'
             cursor.execute(time_file_read_query, chat_id)
             rows = cursor.fetchone()
             connection.commit()
