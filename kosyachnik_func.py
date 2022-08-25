@@ -33,4 +33,5 @@ async def kosyachnik_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await storage.increment_row(chat_id, winner_id)
 
     winner_name = winner_username or winner_name
-    return winner_name
+    winner_id = winner_id
+    return winner_name, winner_id

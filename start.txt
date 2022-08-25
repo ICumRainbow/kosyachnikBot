@@ -11,10 +11,12 @@ There are currently 4 commands at your disposal:
 
 
 <b>Appendix for employees who were chosen by the bot</b>
+
 If the bot somehow (unbelievable!) chose you as kosyachnik of the day - don't be upset, because it's needless to argue with the machine!
 Better try to analyze - what are your shortcomings? Do you have more of them than anybody does? Try to figure out what you can improve about yourself as an employee.
 
 
 <b>Appendix for company owners, CEOs and managers who were chosen by the bot</b>
+
 Well, this is most likely a bug in our system...
 Kidding! You're the kosyachnik of the day, admit it!

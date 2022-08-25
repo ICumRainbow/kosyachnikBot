@@ -1,5 +1,7 @@
 import logging
 import os
+import sys
+
 import pymysql
 from telegram.constants import ParseMode
 
@@ -82,8 +84,8 @@ async def kosyachnik_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if not await storage.time_row_exists(chat_id=chat_id):
-        winner_name = await kosyachnik_func(update, context)
-        await storage.create_time_file(chat_id=chat_id, winner_name=winner_name)
+        winner_name, winner_id = await kosyachnik_func(update, context)
+        await storage.create_time_file(chat_id=chat_id, winner_name=winner_name, winner_id=winner_id)
         return
 
     delta, wait_text, winner_name = await time_func(update, context)
@@ -91,8 +93,8 @@ async def kosyachnik_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if delta.days == 0:
         await context.bot.send_message(chat_id=update.effective_chat.id, text=wait_text)
     else:
-        winner_name = await kosyachnik_func(update, context)
-        await storage.create_time_file(chat_id=chat_id, winner_name=winner_name)
+        winner_name, winner_id = await kosyachnik_func(update, context)
+        await storage.create_time_file(chat_id=chat_id, winner_name=winner_name, winner_id=winner_id)
 
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -108,7 +110,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         5: PREFIX_SIMPLE,
         10: PREFIX_SLACKER,
         20: PREFIX_CEO,
-        100000000: PREFIX_TERMINATION
+        sys.maxsize: PREFIX_TERMINATION
     }
 
     kosyachnik_statistics = []

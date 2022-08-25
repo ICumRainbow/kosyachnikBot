@@ -134,14 +134,14 @@ class Storage:
             cursor.execute(truncate_users)
             connection.commit()
 
-    async def create_time_file(self, chat_id: int, winner_name):
+    async def create_time_file(self, chat_id: int, winner_name: str, winner_id: int):
         now = datetime.now()
         current_time = now.strftime('%Y-%m-%d %H:%M:%S:%f')
 
-        row = (chat_id, current_time, winner_name)
+        row = (chat_id, current_time, winner_name, winner_id)
         connection = await self.connect()
         with connection.cursor() as cursor:
-            create_time_file_query = "INSERT INTO contest_groups VALUES(%s, %s, %s)"
+            create_time_file_query = "INSERT INTO contest_groups VALUES(%s, %s, %s, %s)"
             cursor.execute(create_time_file_query, row)
             connection.commit()
 
@@ -170,3 +170,5 @@ class Storage:
             add_row_query = "UPDATE users SET username=%s, name=%s WHERE user_id=%s"
             cursor.execute(add_row_query, row2overwrite)
             connection.commit()
+
+
