@@ -68,7 +68,7 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await storage.add_row(chat_id, user_id, username, name)
         await context.bot.send_message(chat_id=chat_id, text=joined_text)
     else:
-        await storage.overwrite_row(target_user_id=user_id, new_username=username, new_name=name)
+        await storage.overwrite_row(target_user_id=user_id, new_username=username, new_name=name, chat_id=chat_id)
         await context.bot.send_message(chat_id=chat_id, text=ALREADY_IN)
 
 

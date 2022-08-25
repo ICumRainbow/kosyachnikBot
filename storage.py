@@ -163,12 +163,15 @@ class Storage:
             connection.commit()
         return str(rows['winner_name'])
 
-    async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str):
+    async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str, chat_id):
         connection = await self.connect()
-        row2overwrite = (new_username, new_name, target_user_id)
+        users_row2overwrite = (new_username, new_name, target_user_id)
+        contest_groups_row2overwrite = (new_name, chat_id)
         with connection.cursor() as cursor:
-            add_row_query = "UPDATE users SET username=%s, name=%s WHERE user_id=%s"
-            cursor.execute(add_row_query, row2overwrite)
+            users_overwrite_row_query = "UPDATE users SET username=%s, name=%s WHERE user_id=%s"
+            contest_groups_overwrite_row_query = "UPDATE contest_groups SET winner_name=%s WHERE chat_id=%s"
+            cursor.execute(users_overwrite_row_query, users_row2overwrite)
+            cursor.execute(contest_groups_overwrite_row_query, contest_groups_row2overwrite)
             connection.commit()
 
 
