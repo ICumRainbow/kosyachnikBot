@@ -13,21 +13,9 @@ MAX_ATTEMPTS = 10
 
 
 class Storage:
-    headers = ['id', 'username', 'name', 'score']
 
     def __init__(self):
         self.path_start = Path('start.txt')
-        # self.storage_file_name = f'database/{storage_file_name}.csv'
-        # self.storage_time_file_name = f'database/{storage_file_name}-time.txt'
-        # path = Path(self.storage_file_name)
-        # if not path.exists():
-        #     self._create_storage_file()
-
-    # def _create_storage_file(self):
-    #     """ Create storage if it does not exist and add headers. Just open storage otherwise """
-    #     with open(self.storage_file_name, 'w', newline='') as database:
-    #         writer = csv.DictWriter(database, fieldnames=self.headers)
-    #         writer.writeheader()
 
     async def connect(self, attempt=0, context=ContextTypes.DEFAULT_TYPE):
         if attempt > MAX_ATTEMPTS:
@@ -57,29 +45,42 @@ class Storage:
             start_text = f.read()
             return start_text
 
-    async def check_row_existance(self, chat_id: int, user_id: int):
+    async def check_registered(self, chat_id: int, user_id: int):
         connection = await self.connect()
+        chat_and_user_id = (chat_id, user_id)
         with connection.cursor() as cursor:
-            select_query = 'select * from users'
-            cursor.execute(select_query)
-            participants_list = cursor.fetchall()
-            for i in participants_list:
-                if chat_id in i.values() and user_id in i.values():
-                    return True
+            select_query = 'select user_id from scores where chat_id=%s and user_id=%s'
+            return cursor.execute(select_query, chat_and_user_id)
 
     async def add_row(self, chat_id: int, user_id: int, username: str, name: str):
 
-        row = (chat_id, user_id, username, name, 0)
+        row_users = (user_id, username, name)
+        row_groups = (chat_id,)
+        row_scores = (chat_id, user_id)
         connection = await self.connect()
         with connection.cursor() as cursor:
-            add_row_query = "INSERT INTO users VALUES(%s,%s,%s,%s, %s)"
-            cursor.execute(add_row_query, row)
+            check_users_query = "SELECT id, username, name from users where id=%s"
+            add_row_users_query = "INSERT INTO users VALUES(%s,%s,%s)"
+            check_groups_query = "SELECT id from contest_groups where id=%s"
+            add_row_groups_query = "INSERT INTO contest_groups(id) VALUES(%s)"
+            add_row_scores_query = "INSERT INTO scores(chat_id,user_id) VALUES(%s,%s)"
+
+            if not cursor.execute(check_users_query, user_id):
+                cursor.execute(add_row_users_query, row_users)
+
+            if not cursor.execute(check_groups_query, row_groups):
+                cursor.execute(add_row_groups_query, row_groups)
+
+            cursor.execute(add_row_scores_query, row_scores)
+
             connection.commit()
 
     async def rows_exist(self, chat_id) -> bool:
         connection = await self.connect()
         with connection.cursor() as cursor:
-            rows_exist_query = 'SELECT * FROM users WHERE chat_id=%s'
+            rows_exist_query = 'SELECT IFNULL(users.username, users.name) AS "name" ' \
+                               'FROM scores ' \
+                               'JOIN users ON scores.chat_id=%s AND scores.user_id=users.id;'
             result = cursor.execute(rows_exist_query, chat_id)
             connection.commit()
             return result
@@ -91,17 +92,21 @@ class Storage:
         # return data
         connection = await self.connect()
         with connection.cursor() as cursor:
-            select_query = 'select * from users where chat_id=%s'
+            select_query = 'SELECT IFNULL(users.username, users.name) AS "name", users.id AS "id", scores.score as "score" ' \
+                           'FROM scores ' \
+                           'JOIN users ON scores.chat_id=%s AND scores.user_id=users.id;'
             cursor.execute(select_query, chat_id)
             participants_list = cursor.fetchall()
             connection.commit()
+            print(123)
             return participants_list
 
     async def check_participants(self, chat_id):
         connection = await self.connect()
         with connection.cursor() as cursor:
-            check_participants_query = 'SELECT * FROM users WHERE chat_id=%s'
+            check_participants_query = 'SELECT user_id FROM scores WHERE chat_id=%s'
             participants_exist = cursor.execute(check_participants_query, chat_id)
+            print(participants_exist)
         return participants_exist
 
     async def increment_row(self, chat_id, winner_id: int):
@@ -112,52 +117,56 @@ class Storage:
         row = (chat_id, winner_id)
         connection = await self.connect()
         with connection.cursor() as cursor:
-            increment_score_query = 'UPDATE users SET score = score + 1 WHERE chat_id = %s AND user_id =%s'
+            increment_score_query = 'UPDATE scores SET score = score + 1 WHERE chat_id = %s AND user_id =%s'
             cursor.execute(increment_score_query, row)
             connection.commit()
 
     async def time_row_exists(self, chat_id):
         connection = await self.connect()
         with connection.cursor() as cursor:
-            check_time_file_query = 'SELECT * FROM contest_groups WHERE chat_id=%s'
+            check_time_file_query = 'SELECT last_time FROM contest_groups WHERE id=%s and last_time IS NOT NULL'
             result = cursor.execute(check_time_file_query, chat_id)
-            connection.commit()
-
+            # connection.commit()
+            print(result)
             return result
 
     async def truncate(self):
         connection = await self.connect()
         with connection.cursor() as cursor:
             truncate_users = 'TRUNCATE TABLE users'
-            truncate_time = 'TRUNCATE TABLE contest_groups'
-            cursor.execute(truncate_time)
+            truncate_scores = 'TRUNCATE TABLE scores'
+            truncate_contest_groups = 'TRUNCATE TABLE contest_groups'
             cursor.execute(truncate_users)
+            cursor.execute(truncate_scores)
+            cursor.execute(truncate_contest_groups)
             connection.commit()
 
-    async def create_time_file(self, chat_id: int, winner_name: str, winner_id: int):
+    async def create_time_file(self, chat_id: int, winner_id: int):
         now = datetime.now()
         current_time = now.strftime('%Y-%m-%d %H:%M:%S:%f')
 
-        row = (chat_id, current_time, winner_name, winner_id)
+        row = (current_time, winner_id, chat_id)
         connection = await self.connect()
         with connection.cursor() as cursor:
-            create_time_file_query = "INSERT INTO contest_groups VALUES(%s, %s, %s, %s)"
+            create_time_file_query = "UPDATE contest_groups SET last_time=%s, winner_id=%s WHERE id=%s"
             cursor.execute(create_time_file_query, row)
             connection.commit()
 
     async def retrieve_time(self, chat_id: int):
         connection = await self.connect()
         with connection.cursor() as cursor:
-            time_file_read_query = 'SELECT last_time FROM contest_groups WHERE chat_id=%s'
+            time_file_read_query = 'SELECT last_time FROM contest_groups WHERE id=%s'
             cursor.execute(time_file_read_query, chat_id)
             rows = cursor.fetchone()
             connection.commit()
         return str(rows['last_time'])
 
-    async def retrieve_last_winner(self,chat_id: int):
+    async def retrieve_last_winner(self, chat_id: int):
         connection = await self.connect()
         with connection.cursor() as cursor:
-            time_file_read_query = 'SELECT winner_name FROM contest_groups WHERE chat_id=%s'
+            time_file_read_query = 'SELECT IFNULL(users.username, users.name) AS "winner_name", users.id AS "id" ' \
+                                   'FROM contest_groups ' \
+                                   'JOIN users ON contest_groups.id=%s AND contest_groups.winner_id=users.id;'
             cursor.execute(time_file_read_query, chat_id)
             rows = cursor.fetchone()
             connection.commit()
@@ -165,13 +174,8 @@ class Storage:
 
     async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str, chat_id):
         connection = await self.connect()
-        users_row2overwrite = (new_username, new_name, target_user_id)
-        contest_groups_row2overwrite = (new_name, chat_id)
+        users_row = (new_username, new_name, target_user_id)
         with connection.cursor() as cursor:
-            users_overwrite_row_query = "UPDATE users SET username=%s, name=%s WHERE user_id=%s"
-            contest_groups_overwrite_row_query = "UPDATE contest_groups SET winner_name=%s WHERE chat_id=%s"
-            cursor.execute(users_overwrite_row_query, users_row2overwrite)
-            cursor.execute(contest_groups_overwrite_row_query, contest_groups_row2overwrite)
+            overwrite_rows_query = "UPDATE users SET username=%s, name=%s WHERE id=%s"
+            cursor.execute(overwrite_rows_query, users_row)
             connection.commit()
-
-

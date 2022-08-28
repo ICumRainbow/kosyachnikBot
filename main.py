@@ -47,7 +47,7 @@ TOKEN = '5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzFbYfRPc'
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     storage = Storage()
-
+    # await storage.truncate()
     text = storage.start_message() if storage.start_msg_exists() else DEFAULT_START_MSG
     await context.bot.send_message(chat_id=update.effective_chat.id, text=text, parse_mode=ParseMode.HTML)
 
@@ -55,7 +55,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
     storage = Storage()
-    # storage.truncate()
     # Add new row (when registered)
     username = update.effective_user.username or ''
     user_id = int(update.effective_user.id)
@@ -63,13 +62,14 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     last_name = update.effective_user.last_name
     name = (first_name + ' ' + last_name) if last_name else first_name
 
-    if not await storage.check_row_existance(user_id=user_id, chat_id=chat_id):
+    if not await storage.check_registered(user_id=user_id, chat_id=chat_id):
         joined_text = JOINED_MSG.format(name=username or name)
         await storage.add_row(chat_id, user_id, username, name)
         await context.bot.send_message(chat_id=chat_id, text=joined_text)
     else:
         await storage.overwrite_row(target_user_id=user_id, new_username=username, new_name=name, chat_id=chat_id)
         await context.bot.send_message(chat_id=chat_id, text=ALREADY_IN)
+
 
 
 # scoreboard = {}
@@ -85,7 +85,7 @@ async def kosyachnik_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if not await storage.time_row_exists(chat_id=chat_id):
         winner_name, winner_id = await kosyachnik_func(update, context)
-        await storage.create_time_file(chat_id=chat_id, winner_name=winner_name, winner_id=winner_id)
+        await storage.create_time_file(chat_id=chat_id, winner_id=winner_id)
         return
 
     delta, wait_text, winner_name = await time_func(update, context)
@@ -94,7 +94,7 @@ async def kosyachnik_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=update.effective_chat.id, text=wait_text)
     else:
         winner_name, winner_id = await kosyachnik_func(update, context)
-        await storage.create_time_file(chat_id=chat_id, winner_name=winner_name, winner_id=winner_id)
+        await storage.create_time_file(chat_id=chat_id, winner_id=winner_id)
 
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -104,7 +104,6 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not rows_exist:
         await context.bot.send_message(chat_id=chat_id, text=NO_STATS)
         return
-
 
     prefixes = {
         5: PREFIX_SIMPLE,
@@ -116,6 +115,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     kosyachnik_statistics = []
     rows_list = await storage.retrieve_rows_list(chat_id)
     for row in rows_list:
+        print(row)
         score = row['score']
         for key in prefixes.keys():
             if score < key:
@@ -129,7 +129,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         #     prefix = PREFIX_CEO
         # else:
         #     prefix = PREFIX_TERMINATION
-        name = row['username'] or row['name']
+        name = row['name']
         kosyachnik_str = f'{name} - {prefix}'
 
         kosyachnik_statistics.append(kosyachnik_str)

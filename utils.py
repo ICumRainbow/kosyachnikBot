@@ -86,3 +86,56 @@ async def time_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #
 # compare_versions("10.4", "11")
 
+# MORSE_CODE = {'A': '.-', 'B': '-...',
+#               'C': '-.-.', 'D': '-..', 'E': '.',
+#               'F': '..-.', 'G': '--.', 'H': '....',
+#               'I': '..', 'J': '.---', 'K': '-.-',
+#               'L': '.-..', 'M': '--', 'N': '-.',
+#               'O': '---', 'P': '.--.', 'Q': '--.-',
+#               'R': '.-.', 'S': '...', 'T': '-',
+#               'U': '..-', 'V': '...-', 'W': '.--',
+#               'X': '-..-', 'Y': '-.--', 'Z': '--..',
+#               '1': '.----', '2': '..---', '3': '...--',
+#               '4': '....-', '5': '.....', '6': '-....',
+#               '7': '--...', '8': '---..', '9': '----.',
+#               '0': '-----', ', ': '--..--', '.': '.-.-.-',
+#               '?': '..--..', '/': '-..-.', '-': '-....-',
+#               '(': '-.--.', ')': '-.--.-'}
+
+
+# def decode_morse(morse_code):
+    # morse_code = list(morse_code)
+    # string = ''
+    morse_list = []
+    # for inx, val in enumerate(morse_code):
+    #     if val != ' ':
+    #         string = string + val
+    #     elif val == ' ' and morse_code[inx+1] != ' ':
+    #         morse_list.append(string)
+    #         string = ''
+    #         continue
+    #     else:
+    #         morse_list.append(val)
+    #
+    # print(morse_list)
+#     morse_code = morse_code.split('   ')
+#     for i in morse_code:
+#         i = i.split()
+#         morse_list.append(i)
+#     print(morse_list)
+#     for items in morse_list:
+#         for item in items:
+#             item = MORSE_CODE[item]
+#             print(item)
+# decode_morse('.... . -.--   .--- ..- -.. .')
+
+
+
+# def is_isogram(string:str):
+#     string = string.lower()
+#     cache = set()
+#     for i in string:
+#         if i in cache:
+#             return False
+#         cache.add(i)
+#     return True
