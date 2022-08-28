@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Tuple
 
 from telegram import Update
@@ -7,7 +7,8 @@ from telegram.ext import ContextTypes
 from messages import WAIT_MSG
 from storage import Storage
 
-
+offset = timedelta(hours=-4)
+timezone(offset, name='EST')
 def verbose_format_time(h, m, s) -> str:
     time_dict = {}
 
