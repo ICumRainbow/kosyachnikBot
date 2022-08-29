@@ -109,6 +109,15 @@ class Storage:
             connection.commit()
             return participants_list
 
+    async def check_user_data(self, user_id):
+        connection = await self._get_connection()
+        with connection.cursor() as cursor:
+            check_user_query = 'SELECT username, name from users WHERE id=%s'
+            cursor.execute(check_user_query, user_id)
+            user_data = cursor.fetchone()
+            connection.commit()
+            return user_data
+
     async def check_participants(self, chat_id):
         connection = await self._get_connection()
         with connection.cursor() as cursor:
@@ -180,11 +189,13 @@ class Storage:
 
     async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str):
         connection = await self._get_connection()
-        users_row = (new_username, new_name, target_user_id)
-        with connection.cursor() as cursor:
-            overwrite_rows_query = "UPDATE users SET username=%s, name=%s WHERE id=%s"
-            cursor.execute(overwrite_rows_query, users_row)
-            connection.commit()
+        user = await self.check_user_data(target_user_id)
+        if user['username'] != new_username or user['name'] != new_name:
+            users_row = (new_username, new_name, target_user_id)
+            with connection.cursor() as cursor:
+                overwrite_rows_query = "UPDATE users SET username=%s, name=%s WHERE id=%s"
+                cursor.execute(overwrite_rows_query, users_row)
+                connection.commit()
 
 
 storage = Storage()

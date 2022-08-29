@@ -61,11 +61,11 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = username or ((first_name + ' ' + last_name) if last_name else first_name)
 
     if not await storage.check_registered(chat_id=chat_id, user_id=user_id):
-        joined_text = JOINED_MSG.format(name=name)
+        join_text = JOINED_MSG.format(name=name)
         await storage.add_row(chat_id, user_id, username, name)
-        await context.bot.send_message(chat_id=chat_id, text=joined_text)
+        await context.bot.send_message(chat_id=chat_id, text=join_text)
     else:
-        await storage.overwrite_row(target_user_id=user_id, new_username=username, new_name=name)
+        await storage.overwrite_row(target_user_id=user_id, new_username=username, new_name=first_name)
         await context.bot.send_message(chat_id=chat_id, text=ALREADY_IN)
 
 
@@ -95,11 +95,14 @@ async def kosyachnik(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
+    user_id = int(update.effective_user.id)
+    username = update.effective_user.username or ''
+    first_name = update.effective_user.first_name
     rows_exist = await storage.rows_exist(chat_id=chat_id)
     if not rows_exist:
         await context.bot.send_message(chat_id=chat_id, text=NO_STATS)
         return
-
+    await storage.overwrite_row(target_user_id=user_id, new_username=username, new_name=first_name)
     prefixes = {
         5: PREFIX_SIMPLE,
         10: PREFIX_SLACKER,
