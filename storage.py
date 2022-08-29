@@ -1,6 +1,7 @@
-from asyncio import sleep
+from time import time
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+from timeit import default_timer
 
 import pymysql
 from telegram.ext import ContextTypes
@@ -16,26 +17,35 @@ class Storage:
 
     def __init__(self):
         self.path_start = Path('start.txt')
+        self._connection = None
+        self.start_time = None
 
-    async def connect(self, attempt=0, context=ContextTypes.DEFAULT_TYPE):
-        if attempt > MAX_ATTEMPTS:
-            await context.bot.send_message(chat_id=-719794843, text=ERROR_MSG)
-        try:
-            connection = pymysql.connect(
+    async def _get_connection(self):
+        """ Returns working connection either by reusing an existing one, or by creating a new one """
+        # if attempt > MAX_ATTEMPTS:
+        #     await context.bot.send_message(chat_id=-719794843, text=ERROR_MSG)
+        # print('getting connection')
+        if self._connection is None:
+            self._connection = pymysql.connect(
                 host=host,
                 port=3306,
                 user=user,
                 password=password,
                 database=db_name,
-                cursorclass=pymysql.cursors.DictCursor
+                cursorclass=pymysql.cursors.DictCursor,
             )
-            print('Success!')
-            return connection
-        except pymysql.OperationalError as ex:
-            print(ex)
-            await sleep(1)
-            print('retrying...')
-            return self.connect(attempt + 1)
+            self.start_time = datetime.now(tz=timezone.utc)
+            return self._connection
+        now = datetime.now(tz=timezone.utc)
+        delta = now - self.start_time
+        # print(delta.seconds)
+        if delta > timedelta(seconds=60):
+            start = default_timer()
+            self._connection.ping(reconnect=True)
+            print(f'Time taken: {default_timer() - start}s')
+
+        self.start_time = now
+        return self._connection
 
     def start_msg_exists(self) -> bool:
         return self.path_start.exists()
@@ -46,18 +56,20 @@ class Storage:
             return start_text
 
     async def check_registered(self, chat_id: int, user_id: int):
-        connection = await self.connect()
         chat_and_user_id = (chat_id, user_id)
+        connection = await self._get_connection()
         with connection.cursor() as cursor:
             select_query = 'select user_id from scores where chat_id=%s and user_id=%s'
             return cursor.execute(select_query, chat_and_user_id)
 
     async def add_row(self, chat_id: int, user_id: int, username: str, name: str):
 
+        connection = await self._get_connection()
+
         row_users = (user_id, username, name)
         row_groups = (chat_id,)
         row_scores = (chat_id, user_id)
-        connection = await self.connect()
+
         with connection.cursor() as cursor:
             check_users_query = "SELECT id, username, name from users where id=%s"
             add_row_users_query = "INSERT INTO users VALUES(%s,%s,%s)"
@@ -76,7 +88,8 @@ class Storage:
             connection.commit()
 
     async def rows_exist(self, chat_id) -> bool:
-        connection = await self.connect()
+
+        connection = await self._get_connection()
         with connection.cursor() as cursor:
             rows_exist_query = 'SELECT IFNULL(users.username, users.name) AS "name" ' \
                                'FROM scores ' \
@@ -86,52 +99,45 @@ class Storage:
             return result
 
     async def retrieve_rows_list(self, chat_id) -> list:
-        # with open(self.storage_file_name) as f:
-        #     reader = csv.reader(f)
-        #     data = list(reader)
-        # return data
-        connection = await self.connect()
+        connection = await self._get_connection()
         with connection.cursor() as cursor:
-            select_query = 'SELECT IFNULL(users.username, users.name) AS "name", users.id AS "id", scores.score as "score" ' \
+            select_query = 'SELECT users.username AS "username", users.name AS "name", users.id AS "id", scores.score as "score" ' \
                            'FROM scores ' \
                            'JOIN users ON scores.chat_id=%s AND scores.user_id=users.id;'
             cursor.execute(select_query, chat_id)
             participants_list = cursor.fetchall()
             connection.commit()
-            print(123)
             return participants_list
 
     async def check_participants(self, chat_id):
-        connection = await self.connect()
+        connection = await self._get_connection()
         with connection.cursor() as cursor:
-            check_participants_query = 'SELECT user_id FROM scores WHERE chat_id=%s'
+            check_participants_query = 'SELECT chat_id FROM scores WHERE chat_id=%s'
             participants_exist = cursor.execute(check_participants_query, chat_id)
-            print(participants_exist)
+            # print(participants_exist)
         return participants_exist
 
     async def increment_row(self, chat_id, winner_id: int):
 
-        # for chat_id, user_id, username, name, score in rows_list:
-        # if user_id == winner_id:
-        #     score = int(score) + 1
+        connection = await self._get_connection()
+
         row = (chat_id, winner_id)
-        connection = await self.connect()
         with connection.cursor() as cursor:
             increment_score_query = 'UPDATE scores SET score = score + 1 WHERE chat_id = %s AND user_id =%s'
             cursor.execute(increment_score_query, row)
             connection.commit()
 
     async def time_row_exists(self, chat_id):
-        connection = await self.connect()
+        connection = await self._get_connection()
         with connection.cursor() as cursor:
             check_time_file_query = 'SELECT last_time FROM contest_groups WHERE id=%s and last_time IS NOT NULL'
             result = cursor.execute(check_time_file_query, chat_id)
             # connection.commit()
-            print(result)
+            # print(result)
             return result
 
     async def truncate(self):
-        connection = await self.connect()
+        connection = await self._get_connection()
         with connection.cursor() as cursor:
             truncate_users = 'TRUNCATE TABLE users'
             truncate_scores = 'TRUNCATE TABLE scores'
@@ -142,18 +148,18 @@ class Storage:
             connection.commit()
 
     async def create_time_file(self, chat_id: int, winner_id: int):
+        connection = await self._get_connection()
         now = datetime.now()
         current_time = now.strftime('%Y-%m-%d %H:%M:%S:%f')
 
         row = (current_time, winner_id, chat_id)
-        connection = await self.connect()
         with connection.cursor() as cursor:
             create_time_file_query = "UPDATE contest_groups SET last_time=%s, winner_id=%s WHERE id=%s"
             cursor.execute(create_time_file_query, row)
             connection.commit()
 
     async def retrieve_time(self, chat_id: int):
-        connection = await self.connect()
+        connection = await self._get_connection()
         with connection.cursor() as cursor:
             time_file_read_query = 'SELECT last_time FROM contest_groups WHERE id=%s'
             cursor.execute(time_file_read_query, chat_id)
@@ -162,20 +168,23 @@ class Storage:
         return str(rows['last_time'])
 
     async def retrieve_last_winner(self, chat_id: int):
-        connection = await self.connect()
+        connection = await self._get_connection()
         with connection.cursor() as cursor:
-            time_file_read_query = 'SELECT IFNULL(users.username, users.name) AS "winner_name", users.id AS "id" ' \
+            time_file_read_query = 'SELECT users.username AS "winner_username", users.name AS "winner_name", users.id AS "id" ' \
                                    'FROM contest_groups ' \
                                    'JOIN users ON contest_groups.id=%s AND contest_groups.winner_id=users.id;'
             cursor.execute(time_file_read_query, chat_id)
             rows = cursor.fetchone()
             connection.commit()
-        return str(rows['winner_name'])
+        return str(rows['winner_username'] or rows['winner_name'])
 
-    async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str, chat_id):
-        connection = await self.connect()
+    async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str):
+        connection = await self._get_connection()
         users_row = (new_username, new_name, target_user_id)
         with connection.cursor() as cursor:
             overwrite_rows_query = "UPDATE users SET username=%s, name=%s WHERE id=%s"
             cursor.execute(overwrite_rows_query, users_row)
             connection.commit()
+
+
+storage = Storage()

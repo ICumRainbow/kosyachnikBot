@@ -5,7 +5,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 from messages import WAIT_MSG
-from storage import Storage
+from storage import storage
 
 offset = timedelta(hours=-4)
 timezone(offset, name='EST')
@@ -36,23 +36,23 @@ def verbose_format_time(h, m, s) -> str:
 verbose_format_time(1, 31, 21)
 
 
-async def time_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def time_func(update: Update):
     chat_id = update.message.chat.id
-    storage = Storage()
-
-    now = datetime.now()
+    now = datetime.now(tz=timezone.utc)
     est_time_difference = -14400
-    last_time = datetime.strptime(await storage.retrieve_time(chat_id=chat_id), '%Y-%m-%d %H:%M:%S')
+    time = await storage.retrieve_time(chat_id=chat_id)
+    last_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
+
     winner_name = await storage.retrieve_last_winner(chat_id=chat_id)
     delta = last_time - now + timedelta(days=1)
     minutes, seconds = divmod(delta.seconds - est_time_difference, 60)
     hours, minutes = divmod(minutes, 60)
 
-    verbose_format_time(hours, minutes, seconds)
     time_string = verbose_format_time(hours, minutes, seconds)
     wait_text = WAIT_MSG.format(time=time_string, winner_name=winner_name)
 
     return delta, wait_text, winner_name
+
 
 
 # def compare_versions(version1: str, version2: str):
@@ -141,3 +141,44 @@ async def time_func(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #             return False
 #         cache.add(i)
 #     return True
+# string = ''
+#
+# def dec_to_bin(n, string=''):
+#
+#     if n >= 1:
+#         string = string + str(n % 2)
+#         return dec_to_bin(n // 2, string)
+#     return int(string)
+#
+#
+# def binary_pyramid(m, n):
+#     bin_list = []
+#     for i in range(m, n + 1):
+#         bin_i = int(bin(i).replace("0b", ""))
+#         bin_list.append(bin_i)
+#     result = bin(sum(bin_list)).replace("0b", "")
+#     return result
+#
+# binary_pyramid(1,4)
+#
+# print(1%2)
+
+
+# def to_bin(n):
+#     bin_list = []
+#     for i in range(1, n+1):
+#         bin_i = str(i % 2)
+#         bin_list.append(bin_i)
+#     bin_list = bin_list[::-1]
+#     print(bin_list)
+#     return int("".join(bin_list))
+#
+# def binary_pyramid(m,n):
+#     bin_list = []
+#     for i in range(m,n+1):
+#         bin_i = to_bin(i)
+#         bin_list.append(bin_i)
+#     result = to_bin(sum(bin_list))
+#     return print(str(result))
+#
+# binary_pyramid(1,4)
