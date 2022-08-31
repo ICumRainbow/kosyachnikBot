@@ -48,7 +48,7 @@ async def check_time(update: Update) -> Tuple[timedelta, str]:
 
     last_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')  # .replace(tzinfo=timezone.utc)
     delta = last_time - now + timedelta(days=1)
-    minutes, seconds = divmod(delta.seconds - est_time_difference, 60)
+    minutes, seconds = divmod(delta.seconds, 60)
     hours, minutes = divmod(minutes, 60)
 
     time_string = verbose_format_time(hours, minutes, seconds)
