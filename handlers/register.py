@@ -16,7 +16,7 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = (first_name + ' ' + last_name) if last_name else first_name
 
     if not await storage.check_user_registered(chat_id=chat_id, user_id=user_id):
-        join_text = JOINED_MSG.format(name=name)
+        join_text = JOINED_MSG.format(name=username or name)
         await storage.add_user(chat_id, user_id, username, name)
         await context.bot.send_message(chat_id=chat_id, text=join_text)
     else:
