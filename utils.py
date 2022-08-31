@@ -7,6 +7,7 @@ from telegram import Update
 from messages import WAIT_MSG, PARTICIPANTS_LIST
 from storage import storage
 
+
 # offset = timedelta(hours=-4)
 # timezone(offset, name='EST')
 
@@ -37,23 +38,26 @@ def verbose_format_time(h, m, s) -> str:
 verbose_format_time(1, 31, 21)
 
 
-async def check_time(update: Update) -> Tuple[timedelta, str]:
+async def check_time(update: Update) -> timedelta:
     """ Returns time(timedelta) passed since the last function call and a formatted message with this timedelta. """
     chat_id = update.message.chat.id
-    now = datetime.now() #(tz=timezone.utc)
+    now = datetime.now()  # (tz=timezone.utc)
 
     time = await storage.retrieve_time(chat_id=chat_id)
-    winner_name = await storage.retrieve_last_winner(chat_id=chat_id)
 
-    last_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S') #.replace(tzinfo=timezone.utc)
+    last_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')  # .replace(tzinfo=timezone.utc)
     delta = last_time - now + timedelta(days=1)
+
+    return delta
+
+
+def get_wait_text(delta, winner_name):
     minutes, seconds = divmod(delta.seconds, 60)
     hours, minutes = divmod(minutes, 60)
 
     time_string = verbose_format_time(hours, minutes, seconds)
     wait_text = WAIT_MSG.format(time=time_string, winner_name=winner_name)
-
-    return delta, wait_text
+    return wait_text
 
 
 async def format_participants_list(chat_id) -> str:
@@ -76,10 +80,9 @@ async def choose_random_winner(chat_id) -> Tuple[int, str]:
     participants_list = await storage.retrieve_participants_list(chat_id=chat_id)
 
     winner = choice(participants_list)
-    winner_name, winner_id = winner['username'] or winner['name'], winner['id']
-
+    winner_id = winner['id']
+    winner_name = winner['username'] or winner['name']
+    winner_name = '@' + winner_name if winner['username'] else winner_name
     await storage.increment_row(chat_id, winner_id)
 
     return winner_id, winner_name
-
-

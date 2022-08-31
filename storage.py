@@ -131,7 +131,7 @@ class Storage:
 
         return bool(result)
 
-    async def create_time_file(self, chat_id: int, winner_id: int) -> None:
+    async def update_last_search_time(self, chat_id: int, winner_id: int) -> None:
         """ Either creates or updates last time of calling the Kosyachnik function. """
         connection = await self._get_connection()
 
