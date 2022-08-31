@@ -40,15 +40,16 @@ verbose_format_time(1, 31, 21)
 async def check_time(update: Update) -> Tuple[timedelta, str]:
     """ Returns time(timedelta) passed since the last function call and a formatted message with this timedelta. """
     chat_id = update.message.chat.id
-    now = datetime.now()  # (tz=timezone.utc)
+    now = datetime.now(tz=timezone.utc)
     est_time_difference = -14400
 
     time = await storage.retrieve_time(chat_id=chat_id)
     winner_name = await storage.retrieve_last_winner(chat_id=chat_id)
 
-    last_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')  # .replace(tzinfo=timezone.utc)
+    last_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
     delta = last_time - now + timedelta(days=1)
     minutes, seconds = divmod(delta.seconds, 60)
+    print(delta.days)
     hours, minutes = divmod(minutes, 60)
 
     time_string = verbose_format_time(hours, minutes, seconds)
