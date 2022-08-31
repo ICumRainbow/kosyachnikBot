@@ -7,8 +7,8 @@ from telegram import Update
 from messages import WAIT_MSG, PARTICIPANTS_LIST
 from storage import storage
 
-offset = timedelta(hours=-4)
-timezone(offset, name='EST')
+# offset = timedelta(hours=-4)
+# timezone(offset, name='EST')
 
 
 def verbose_format_time(h, m, s) -> str:
