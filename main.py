@@ -27,10 +27,10 @@ if __name__ == '__main__':
 
     application.add_handlers(handlers)
 
-    application.run_polling()
+    # application.run_polling()
 
-    # application.run_webhook(listen="0.0.0.0",
-    #                         port=PORT,
-    #                         url_path=TOKEN,
-    #                         webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
-    #                         )
+    application.run_webhook(listen="0.0.0.0",
+                            port=PORT,
+                            url_path=TOKEN,
+                            webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
+                            )
