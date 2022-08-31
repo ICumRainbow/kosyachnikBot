@@ -33,6 +33,7 @@ async def kosyachnik(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=chat_id, text=winner_text, parse_mode=ParseMode.HTML)
 
         await storage.create_time_file(chat_id=chat_id, winner_id=winner_id)
+        return
 
     delta, wait_text = await check_time(update)
 
