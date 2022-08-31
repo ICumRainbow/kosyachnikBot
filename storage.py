@@ -1,200 +1,177 @@
-from time import time
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
-from timeit import default_timer
+from typing import ClassVar
 
 import pymysql
-from telegram.ext import ContextTypes
 
-from config import host, user, db_name, password
-from messages import ERROR_MSG
+import config
+from queries import SELECT_USER_ID_QUERY, SELECT_ID_QUERY, INSERT_USER_QUERY, SELECT_GROUP_QUERY, INSERT_GROUP_QUERY, INSERT_SCORE_QUERY, SELECT_STATS_QUERY, SELECT_FETCH_STATS_QUERY, \
+    SELECT_USER_QUERY, \
+    SELECT_CHAT_ID_QUERY, UPDATE_SCORE_QUERY, SELECT_LAST_TIME_NOT_NULL_QUERY, UPDATE_LAST_TIME_QUERY, SELECT_LAST_TIME_QUERY, SELECT_LAST_WINNER_QUERY, UPDATE_USER_ROW_QUERY
 
 API_link = 'https://api.telegram.org/bot5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzFbYfRPc'
 MAX_ATTEMPTS = 10
 
 
 class Storage:
-
     def __init__(self):
-        self.path_start = Path('start.txt')
+        self.info_file_path = Path('info.txt')
         self._connection = None
         self.start_time = None
 
     async def _get_connection(self):
-        """ Returns working connection either by reusing an existing one, or by creating a new one """
-        # if attempt > MAX_ATTEMPTS:
-        #     await context.bot.send_message(chat_id=-719794843, text=ERROR_MSG)
-        # print('getting connection')
+        """ Returns working connection either by reusing an existing one, or by creating a new one. """
         if self._connection is None:
             self._connection = pymysql.connect(
-                host=host,
+                host=config.host,
                 port=3306,
-                user=user,
-                password=password,
-                database=db_name,
+                user=config.user,
+                password=config.password,
+                database=config.db_name,
                 cursorclass=pymysql.cursors.DictCursor,
             )
             self.start_time = datetime.now(tz=timezone.utc)
             return self._connection
+
         now = datetime.now(tz=timezone.utc)
         delta = now - self.start_time
-        # print(delta.seconds)
-        if delta > timedelta(seconds=60):
-            start = default_timer()
-            self._connection.ping(reconnect=True)
-            print(f'Time taken: {default_timer() - start}s')
-
         self.start_time = now
+
+        if delta > timedelta(seconds=60):
+            self._connection.ping(reconnect=True)
+
         return self._connection
 
-    def start_msg_exists(self) -> bool:
-        return self.path_start.exists()
+    def check_info_msg_exists(self) -> bool:
+        """ Returns True if the file with info message exists. False otherwise. """
+        return self.info_file_path.exists()
 
-    def start_message(self):
-        with open(self.path_start, encoding='utf8') as f:
-            start_text = f.read()
-            return start_text
+    def retrieve_info_message(self) -> str:
+        """ Returns text from the file with info message. """
+        with open(self.info_file_path, encoding='utf8') as f:
+            info_text = f.read()
 
-    async def check_registered(self, chat_id: int, user_id: int):
-        chat_and_user_id = (chat_id, user_id)
-        connection = await self._get_connection()
-        with connection.cursor() as cursor:
-            select_query = 'select user_id from scores where chat_id=%s and user_id=%s'
-            return cursor.execute(select_query, chat_and_user_id)
+        return info_text
 
-    async def add_row(self, chat_id: int, user_id: int, username: str, name: str):
-
+    async def check_user_registered(self, chat_id: int, user_id: int) -> bool:
+        """ Returns True if the user is registered in the group. False otherwise. """
         connection = await self._get_connection()
 
-        row_users = (user_id, username, name)
-        row_groups = (chat_id,)
-        row_scores = (chat_id, user_id)
+        with connection.cursor() as cursor:
+            return bool(cursor.execute(SELECT_USER_ID_QUERY, (chat_id, user_id)))
+
+    async def add_user(self, chat_id: int, user_id: int, username: str, name: str) -> None:
+        """ Adds user's id, name, username and chat's id to every table this data is not present in. """
+        connection = await self._get_connection()
 
         with connection.cursor() as cursor:
-            check_users_query = "SELECT id, username, name from users where id=%s"
-            add_row_users_query = "INSERT INTO users VALUES(%s,%s,%s)"
-            check_groups_query = "SELECT id from contest_groups where id=%s"
-            add_row_groups_query = "INSERT INTO contest_groups(id) VALUES(%s)"
-            add_row_scores_query = "INSERT INTO scores(chat_id,user_id) VALUES(%s,%s)"
 
-            if not cursor.execute(check_users_query, user_id):
-                cursor.execute(add_row_users_query, row_users)
+            if not cursor.execute(SELECT_ID_QUERY, user_id):
+                cursor.execute(INSERT_USER_QUERY, (user_id, username, name))
 
-            if not cursor.execute(check_groups_query, row_groups):
-                cursor.execute(add_row_groups_query, row_groups)
+            if not cursor.execute(SELECT_GROUP_QUERY, (chat_id,)):
+                cursor.execute(INSERT_GROUP_QUERY, (chat_id,))
 
-            cursor.execute(add_row_scores_query, row_scores)
+            cursor.execute(INSERT_SCORE_QUERY, (chat_id, user_id))
 
             connection.commit()
 
-    async def rows_exist(self, chat_id) -> bool:
-
+    async def check_stats_exist(self, chat_id) -> bool:
+        """ Returns True if there are any stats available for this chat_id. False otherwise. """
         connection = await self._get_connection()
-        with connection.cursor() as cursor:
-            rows_exist_query = 'SELECT IFNULL(users.username, users.name) AS "name" ' \
-                               'FROM scores ' \
-                               'JOIN users ON scores.chat_id=%s AND scores.user_id=users.id;'
-            result = cursor.execute(rows_exist_query, chat_id)
-            connection.commit()
-            return result
 
-    async def retrieve_rows_list(self, chat_id) -> list:
-        connection = await self._get_connection()
         with connection.cursor() as cursor:
-            select_query = 'SELECT users.username AS "username", users.name AS "name", users.id AS "id", scores.score as "score" ' \
-                           'FROM scores ' \
-                           'JOIN users ON scores.chat_id=%s AND scores.user_id=users.id;'
-            cursor.execute(select_query, chat_id)
+            result = cursor.execute(SELECT_STATS_QUERY, chat_id)
+
+        return bool(result)
+
+    async def retrieve_participants_list(self, chat_id) -> tuple:
+        """ Returns a list of all users registered in this chat. """
+        connection = await self._get_connection()
+
+        with connection.cursor() as cursor:
+            cursor.execute(SELECT_FETCH_STATS_QUERY, chat_id)
             participants_list = cursor.fetchall()
-            connection.commit()
-            return participants_list
 
-    async def check_user_data(self, user_id):
+        return participants_list
+
+    async def retrieve_user_data(self, user_id) -> dict:
+        """ Returns a dict with name and username of the user, which are available in the database. """
         connection = await self._get_connection()
+
         with connection.cursor() as cursor:
-            check_user_query = 'SELECT username, name from users WHERE id=%s'
-            cursor.execute(check_user_query, user_id)
+            cursor.execute(SELECT_USER_QUERY, user_id)
             user_data = cursor.fetchone()
-            connection.commit()
-            return user_data
 
-    async def check_participants(self, chat_id):
-        connection = await self._get_connection()
-        with connection.cursor() as cursor:
-            check_participants_query = 'SELECT chat_id FROM scores WHERE chat_id=%s'
-            participants_exist = cursor.execute(check_participants_query, chat_id)
-            # print(participants_exist)
-        return participants_exist
+        return user_data
 
-    async def increment_row(self, chat_id, winner_id: int):
-
+    async def check_participants_exist(self, chat_id) -> bool:
+        """ Returns True if there are users registered in group with this chat_id. False otherwise. """
         connection = await self._get_connection()
 
-        row = (chat_id, winner_id)
         with connection.cursor() as cursor:
-            increment_score_query = 'UPDATE scores SET score = score + 1 WHERE chat_id = %s AND user_id =%s'
-            cursor.execute(increment_score_query, row)
-            connection.commit()
+            participants_exist = cursor.execute(SELECT_CHAT_ID_QUERY, chat_id)
 
-    async def time_row_exists(self, chat_id):
-        connection = await self._get_connection()
-        with connection.cursor() as cursor:
-            check_time_file_query = 'SELECT last_time FROM contest_groups WHERE id=%s and last_time IS NOT NULL'
-            result = cursor.execute(check_time_file_query, chat_id)
-            # connection.commit()
-            # print(result)
-            return result
+        return bool(participants_exist)
 
-    async def truncate(self):
+    async def increment_row(self, chat_id, winner_id: int) -> None:
+        """ Increments score of user who was chosen as kosyachnik. """
         connection = await self._get_connection()
+
         with connection.cursor() as cursor:
-            truncate_users = 'TRUNCATE TABLE users'
-            truncate_scores = 'TRUNCATE TABLE scores'
-            truncate_contest_groups = 'TRUNCATE TABLE contest_groups'
-            cursor.execute(truncate_users)
-            cursor.execute(truncate_scores)
-            cursor.execute(truncate_contest_groups)
+            cursor.execute(UPDATE_SCORE_QUERY, (chat_id, winner_id))
             connection.commit()
 
-    async def create_time_file(self, chat_id: int, winner_id: int):
+    async def check_time_row_exists(self, chat_id) -> bool:
+        """ Returns True if the Kosyachnik function was ever called in this chat. False otherwise. """
         connection = await self._get_connection()
+
+        with connection.cursor() as cursor:
+            result = cursor.execute(SELECT_LAST_TIME_NOT_NULL_QUERY, chat_id)
+
+        return bool(result)
+
+    async def create_time_file(self, chat_id: int, winner_id: int) -> None:
+        """ Either creates or updates last time of calling the Kosyachnik function. """
+        connection = await self._get_connection()
+
         now = datetime.now()
         current_time = now.strftime('%Y-%m-%d %H:%M:%S:%f')
 
         row = (current_time, winner_id, chat_id)
+
         with connection.cursor() as cursor:
-            create_time_file_query = "UPDATE contest_groups SET last_time=%s, winner_id=%s WHERE id=%s"
-            cursor.execute(create_time_file_query, row)
+            cursor.execute(UPDATE_LAST_TIME_QUERY, row)
             connection.commit()
 
-    async def retrieve_time(self, chat_id: int):
+    async def retrieve_time(self, chat_id: int) -> str:
+        """ Returns last time the Kosyachnik function was called in this chat as string. """
         connection = await self._get_connection()
+
         with connection.cursor() as cursor:
-            time_file_read_query = 'SELECT last_time FROM contest_groups WHERE id=%s'
-            cursor.execute(time_file_read_query, chat_id)
+            cursor.execute(SELECT_LAST_TIME_QUERY, chat_id)
             rows = cursor.fetchone()
-            connection.commit()
         return str(rows['last_time'])
 
-    async def retrieve_last_winner(self, chat_id: int):
+    async def retrieve_last_winner(self, chat_id: int) -> str:
+        """ Returns a string with this chat's last winner's name and username. """
         connection = await self._get_connection()
+
         with connection.cursor() as cursor:
-            time_file_read_query = 'SELECT users.username AS "winner_username", users.name AS "winner_name", users.id AS "id" ' \
-                                   'FROM contest_groups ' \
-                                   'JOIN users ON contest_groups.id=%s AND contest_groups.winner_id=users.id;'
-            cursor.execute(time_file_read_query, chat_id)
+            cursor.execute(SELECT_LAST_WINNER_QUERY, chat_id)
             rows = cursor.fetchone()
-            connection.commit()
+
         return str(rows['winner_username'] or rows['winner_name'])
 
-    async def overwrite_row(self, target_user_id: int, new_username: str, new_name: str):
+    async def update_user_row(self, target_user_id: int, new_username: str, new_name: str) -> None:
+        """ Updates user's name and username if it doesn't match the data in database. """
         connection = await self._get_connection()
-        user = await self.check_user_data(target_user_id)
+
+        user = await self.retrieve_user_data(target_user_id)
         if user['username'] != new_username or user['name'] != new_name:
             users_row = (new_username, new_name, target_user_id)
             with connection.cursor() as cursor:
-                overwrite_rows_query = "UPDATE users SET username=%s, name=%s WHERE id=%s"
-                cursor.execute(overwrite_rows_query, users_row)
+                cursor.execute(UPDATE_USER_ROW_QUERY, users_row)
                 connection.commit()
 
 
