@@ -23,13 +23,24 @@ async def kosyachnik(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await storage.update_user_row(target_user_id=user_id, new_username=username, new_name=name)
 
+    if not await storage.check_time_row_exists(chat_id=chat_id):
+        winner_id, winner_name = await choose_random_winner(chat_id)
+        participants_text = await format_participants_list(chat_id)
+        winner_text = WINNER_MSG.format(winner=winner_name)
+
+        await context.bot.send_message(chat_id=chat_id, text=participants_text)
+        await context.bot.send_message(chat_id=chat_id, text=PROCESS_STARTING_MSG)
+        await context.bot.send_message(chat_id=chat_id, text=winner_text, parse_mode=ParseMode.HTML)
+
+        await storage.create_time_file(chat_id=chat_id, winner_id=winner_id)
+
     delta, wait_text = await check_time(update)
 
     if delta.days == 0:
         await context.bot.send_message(chat_id=chat_id, text=wait_text, parse_mode=ParseMode.HTML)
         return
 
-    elif not await storage.check_time_row_exists(chat_id=chat_id) or delta.days > 0:
+    elif delta.days > 0:
         winner_id, winner_name = await choose_random_winner(chat_id)
         participants_text = await format_participants_list(chat_id)
         winner_text = WINNER_MSG.format(winner=winner_name)
