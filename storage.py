@@ -68,7 +68,7 @@ class Storage:
 
             if not cursor.execute(SELECT_ID_QUERY, user_id):
                 cursor.execute(INSERT_USER_QUERY, (user_id, username, name))
-
+            await storage.update_user_row(target_user_id=user_id, new_username=username, new_name=name)
             if not cursor.execute(SELECT_GROUP_QUERY, (chat_id,)):
                 cursor.execute(INSERT_GROUP_QUERY, (chat_id,))
 
