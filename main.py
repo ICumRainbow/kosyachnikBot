@@ -27,11 +27,11 @@ if __name__ == '__main__':
 
     application.add_handlers(handlers)  # adding handlers
 
-    application.run_polling()  # we use polling in case we want to test it by running it on our PC
+    # application.run_polling()  # we use polling in case we want to test it by running it on our PC
 
-    # application.run_webhook(  # adding webhooks only if the bot is run on a hosting
-    #     listen="0.0.0.0",
-    #     port=PORT,
-    #     url_path=TOKEN,
-    #     webhook_url='https://kosyachnik-bot.herokuapp.com/' + TOKEN
-    # )
+    application.run_webhook(  # adding webhooks only if the bot is run on a hosting
+        listen="0.0.0.0",
+        port=PORT,
+        url_path=TOKEN,
+        webhook_url='https://kosyachnik-bot.herokuapp.com/' + TOKEN
+    )
