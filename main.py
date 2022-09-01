@@ -9,7 +9,7 @@ from handlers.register import register
 from handlers.stats import stats
 
 PORT = int(os.environ.get('PORT', '8443'))
-TOKEN = '5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzFbYfRPc'
+TOKEN = '5715448930:AAGbnJDgHJElbYVYEhR1f7yKTpB7jkZ8FhI'
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
