@@ -8,9 +8,11 @@ SELECT_LAST_TIME_NOT_NULL_QUERY = 'SELECT last_time FROM contest_groups WHERE id
 UPDATE_SCORE_QUERY = 'UPDATE scores SET score = score + 1 WHERE chat_id = %s AND user_id =%s'
 SELECT_CHAT_ID_QUERY = 'SELECT chat_id FROM scores WHERE chat_id=%s'
 SELECT_USER_QUERY = 'SELECT username, name from users WHERE id=%s'
-SELECT_FETCH_STATS_QUERY = '''SELECT users.username AS "username", users.name AS "name", users.id AS "id", scores.score as "score"
-               FROM scores
-               JOIN users ON scores.chat_id=%s AND scores.user_id=users.id;'''
+SELECT_FETCH_STATS_QUERY = '''SELECT users.username AS "username", users.name AS "name", users.id AS "id", scores.score as "score" 
+                              FROM scores JOIN users 
+                                   ON scores.user_id=users.id 
+                              WHERE scores.chat_id=%s 
+                              ORDER BY scores.score DESC;'''
 SELECT_STATS_QUERY = '''SELECT IFNULL(users.username, users.name) AS "name" 
                    FROM scores 
                    JOIN users ON scores.chat_id=%s AND scores.user_id=users.id;'''

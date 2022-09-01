@@ -1,6 +1,7 @@
 import sys
 
 from telegram import Update
+from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 
 from messages import KOSYACHNIK_STATS, PREFIX_TERMINATION, PREFIX_CEO, PREFIX_SLACKER, PREFIX_SIMPLE, NO_STATS
@@ -46,12 +47,10 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
             prefix = ''
 
         name = row['username'] or row['name']
-        kosyachnik_str = f'{name} - {prefix}'
-
+        kosyachnik_str = f"<i>{name}</i>{prefix}"
         kosyachnik_stats.append(kosyachnik_str)
-
     kosyachnik_stats = '\n'.join(kosyachnik_stats)
 
     kosyachnik_stats_message = KOSYACHNIK_STATS.format(kosyachnik_statistics=kosyachnik_stats)  # Format a stats message with prefixes assigned above
 
-    await context.bot.send_message(chat_id=chat_id, text=kosyachnik_stats_message)  # Display the message
+    await context.bot.send_message(chat_id=chat_id, text=kosyachnik_stats_message, parse_mode=ParseMode.HTML)  # Display the message
