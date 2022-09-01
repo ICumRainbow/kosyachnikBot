@@ -33,5 +33,5 @@ if __name__ == '__main__':
         listen="0.0.0.0",
         port=PORT,
         url_path=TOKEN,
-        webhook_url='https://pidor-checker-bot.herokuapp.com/' + TOKEN
+        webhook_url='https://kosyachnik-bot.herokuapp.com/' + TOKEN
     )
