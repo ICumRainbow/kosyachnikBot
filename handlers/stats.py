@@ -23,7 +23,8 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=chat_id, text=NO_STATS)
         return
 
-    await storage.update_user_row(target_user_id=user_id, new_username=username, new_name=name)
+    if await storage.check_user_registered(chat_id=chat_id, user_id=user_id):
+        await storage.update_user_row(target_user_id=user_id, new_username=username, new_name=name)
 
     prefixes = {
         1: PREFIX_SIMPLE,
