@@ -76,7 +76,7 @@ async def format_participants_list(chat_id) -> str:
 
 
 async def choose_random_winner(chat_id) -> Tuple[int, str]:
-    """ Randomly chooses a Kosyachnik among registered members of the effective chat. """
+    """ Randomly chooses a Kosyachnik among registered members of the effective chat and increments his score. """
     participants_list = await storage.retrieve_participants_list(chat_id=chat_id)
 
     winner = choice(participants_list)

@@ -15,10 +15,11 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     name = (first_name + ' ' + last_name) if last_name else first_name
 
-    if not await storage.check_user_registered(chat_id=chat_id, user_id=user_id):
+    if not await storage.check_user_registered(chat_id=chat_id,
+                                               user_id=user_id):  # If the user hasn't registered before, add user to database, format the join message using user's name or username and display it
         join_text = JOINED_MSG.format(name=username or name)
         await storage.add_user(chat_id, user_id, username, name)
         await context.bot.send_message(chat_id=chat_id, text=join_text)
-    else:
+    else:  # If user has already registered, just update his username and name using his id and display an already_in message
         await storage.update_user_row(target_user_id=user_id, new_username=username, new_name=name)
         await context.bot.send_message(chat_id=chat_id, text=ALREADY_IN)

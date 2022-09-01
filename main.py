@@ -17,19 +17,19 @@ logging.basicConfig(
 )
 
 if __name__ == '__main__':
-    application = ApplicationBuilder().token(TOKEN).build()
-    handlers = [
+    application = ApplicationBuilder().token(TOKEN).build()  # this code creates our application using token of our bot
+    handlers = [  # setting handlers for our bot
         CommandHandler('info', info),
         CommandHandler('register', register),
         CommandHandler('kosyachnik', kosyachnik),
         CommandHandler('stats', stats)
     ]
 
-    application.add_handlers(handlers)
+    application.add_handlers(handlers)  # adding handlers
 
-    # application.run_polling()
+    # application.run_polling()  # we use polling in case we want to test it by running it on our PC
 
-    application.run_webhook(
+    application.run_webhook(  # adding webhooks only if the bot is run on a hosting
         listen="0.0.0.0",
         port=PORT,
         url_path=TOKEN,

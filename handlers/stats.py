@@ -19,7 +19,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = (first_name + ' ' + last_name) if last_name else first_name
     rows_exist = await storage.check_stats_exist(chat_id=chat_id)
 
-    if not rows_exist:
+    if not rows_exist:  # Check if there is any users registered in this chat and display a no_stats message is there isn't
         await context.bot.send_message(chat_id=chat_id, text=NO_STATS)
         return
 
