@@ -35,7 +35,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     kosyachnik_stats = []
 
-    participants_list = await storage.retrieve_participants_list(chat_id)
+    participants_list = await storage.retrieve_participants_list(chat_id)  # Retrieve list of this chat's participants and assign an appropriate prefix for every participant
     for row in participants_list:
         score = row['score']
         for key in prefixes.keys():
@@ -52,6 +52,6 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     kosyachnik_stats = '\n'.join(kosyachnik_stats)
 
-    kosyachnik_stats_message = KOSYACHNIK_STATS.format(kosyachnik_statistics=kosyachnik_stats)
+    kosyachnik_stats_message = KOSYACHNIK_STATS.format(kosyachnik_statistics=kosyachnik_stats)  # Format a stats message with prefixes assigned above
 
-    await context.bot.send_message(chat_id=chat_id, text=kosyachnik_stats_message)
+    await context.bot.send_message(chat_id=chat_id, text=kosyachnik_stats_message)  # Display the message
