@@ -35,7 +35,8 @@ async def kosyachnik(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=chat_id, text=NO_PARTICIPANTS)
         return
 
-    await storage.update_user_row(target_user_id=user_id, new_username=username, new_name=name)  # If user is registered in any chat, update his username and name
+    if await storage.check_user_registered(chat_id=chat_id, user_id=user_id):
+        await storage.update_user_row(target_user_id=user_id, new_username=username, new_name=name)  # If user is registered in any chat, update his username and name
 
     if not await storage.check_time_row_exists(chat_id=chat_id):  # If there is no last time of calling this handler - choose the winner
         await _send_winner_messages(chat_id, context)
