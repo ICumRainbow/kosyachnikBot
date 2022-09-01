@@ -1,4 +1,5 @@
 import logging
+import os
 
 from telegram.ext import ApplicationBuilder, CommandHandler
 
@@ -7,7 +8,7 @@ from handlers.kosyachnik import kosyachnik
 from handlers.register import register
 from handlers.stats import stats
 
-PORT = 8443
+PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = '5431088637:AAF5c6G5TrsbMK5jzd-mf-5FdoRzFbYfRPc'
 
 logging.basicConfig(
