@@ -25,8 +25,8 @@ def verbose_format_time(h, m, s) -> str:
         else:
             return str(val) + words[2]
 
-    time_dict = {'hours': determine_suffix(h, (' hours, ', ' hour, ', ' hours, ')), 'minutes': determine_suffix(m, (' minutes, ', ' minute, ', ' minutes, ')),
-                 'seconds': determine_suffix(s, (' seconds', ' second', ' seconds'))}
+    time_dict = {'hours': determine_suffix(h, (' hours, ', ' hour, ', ' hours, ')), 'minutes': determine_suffix(m, (' minutes', ' minute', ' minutes')),
+                 'seconds': ',' + determine_suffix(s, (' seconds', ' second', ' seconds'))}
     time = ''
 
     for keys in time_dict:
