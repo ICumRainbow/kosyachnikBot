@@ -47,7 +47,7 @@ async def check_time(update: Update) -> timedelta:
 
     last_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
     delta = last_time - now + timedelta(days=1)
-
+    print(delta)
     return delta
 
 
