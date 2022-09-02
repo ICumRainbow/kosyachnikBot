@@ -25,8 +25,8 @@ def verbose_format_time(h, m, s) -> str:
         else:
             return str(val) + words[2]
 
-    time_dict = {'hours': determine_suffix(h, (' hours, ', ' hour, ', ' hours, ')), 'minutes': determine_suffix(m, (' minutes', ' minute', ' minutes')),
-                 'seconds': ',' + determine_suffix(s, (' seconds', ' second', ' seconds'))}
+    time_dict = {'hours': determine_suffix(h, (' hours, ', ' hour, ', ' hours, ')), 'minutes': determine_suffix(m, (' minutes, ', ' minute, ', ' minutes, ')),
+                 'seconds': determine_suffix(s, (' seconds', ' second', ' seconds'))}
     time = ''
 
     for keys in time_dict:
@@ -56,7 +56,10 @@ def get_wait_text(delta, winner_name):
     hours, minutes = divmod(minutes, 60)
     if hours != 0:
         seconds = 0
-    time_string = verbose_format_time(hours, minutes, seconds)
+        time_string = verbose_format_time(hours, minutes, seconds)
+        time_string[-1] = ''
+    else:
+        time_string = verbose_format_time(hours, minutes, seconds)
     wait_text = WAIT_MSG.format(time=time_string, winner_name=winner_name)
     return wait_text
 
