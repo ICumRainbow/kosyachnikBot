@@ -56,7 +56,7 @@ def get_wait_text(delta, winner_name):
     hours, minutes = divmod(minutes, 60)
     if hours != 0:
         seconds = 0
-        time_string = verbose_format_time(hours, ' and ' + minutes, seconds)
+        time_string = verbose_format_time(hours, minutes, seconds)
         time_string = time_string.rstrip(', ')
     else:
         time_string = verbose_format_time(hours, minutes, seconds)
