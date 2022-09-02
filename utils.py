@@ -41,7 +41,7 @@ verbose_format_time(1, 31, 21)
 async def check_time(update: Update) -> timedelta:
     """ Returns time(timedelta) passed since the last function call and a formatted message with this timedelta. """
     chat_id = update.message.chat.id
-    now = datetime.now #(tz=timezone.utc)
+    now = datetime.now() #(tz=timezone.utc)
 
     time = await storage.retrieve_time(chat_id=chat_id)
 
