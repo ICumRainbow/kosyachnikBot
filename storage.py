@@ -135,7 +135,7 @@ class Storage:
         """ Either creates or updates last time of calling the Kosyachnik function. """
         connection = await self._get_connection()
 
-        now = datetime.now()
+        now = datetime.now(tz=timezone.utc)
         current_time = now.strftime('%Y-%m-%d %H:%M:%S:%f')
 
         row = (current_time, winner_id, chat_id)
