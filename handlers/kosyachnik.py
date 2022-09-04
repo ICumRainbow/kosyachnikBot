@@ -46,7 +46,7 @@ async def kosyachnik(update: Update, context: ContextTypes.DEFAULT_TYPE):
     winner_name = await storage.retrieve_last_winner(chat_id=chat_id)  # Retrieve last winner's name for a message to wait
     wait_text = get_wait_text(delta, winner_name)  # Format wait message using data we retrieved above
 
-    if delta.days == 0:  # If it wasn't a day since last handler call, display wait message
+    if delta.seconds == 0:  # If it wasn't a day since last handler call, display wait message
         await context.bot.send_message(chat_id=chat_id, text=wait_text, parse_mode=ParseMode.HTML)
         return
 
