@@ -50,5 +50,5 @@ async def kosyachnik(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=chat_id, text=wait_text, parse_mode=ParseMode.HTML)
         return
 
-    elif delta.days > 0:  # If it was a day or more - choose the winner
+    elif delta.seconds > 1:  # If it was a day or more - choose the winner
         await _send_winner_messages(chat_id, context)
