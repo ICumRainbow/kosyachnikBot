@@ -46,7 +46,7 @@ async def check_time(update: Update) -> timedelta:
     time = await storage.retrieve_time(chat_id=chat_id)
 
     last_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
-    delta = last_time - timedelta(days=1) + now
+    delta = last_time - now
     print(delta)
     return delta
 
