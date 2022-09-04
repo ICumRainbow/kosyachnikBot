@@ -52,7 +52,7 @@ async def check_time(update: Update) -> timedelta:
 
 
 def get_wait_text(delta, winner_name):
-    minutes, seconds = divmod(delta.seconds, 60)
+    minutes, seconds = divmod(86400 - delta.seconds, 60)
     hours, minutes = divmod(minutes, 60)
     if hours != 0:
         seconds = 0
