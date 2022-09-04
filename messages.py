@@ -1,6 +1,6 @@
 # MESSAGES
 DEFAULT_START_MSG = f'Welcome to the Kosyachnik Telegram Bot!\nI didn\'t come up with any more text, sry.'
-WINNER_MSG = 'And the Kosyachnik of the day is <b>{winner}</b>!'
+WINNER_MSG = 'And the <b>Kosyachnik of the day is {winner}!</b>'
 ALREADY_IN = 'You\'re already in the game!'
 NO_PARTICIPANTS = 'No participants found. Please type /register to join.'
 PROCESS_STARTING_MSG = 'Starting....'
