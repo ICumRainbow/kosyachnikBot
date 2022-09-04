@@ -71,7 +71,7 @@ async def format_participants_list(chat_id) -> str:
     participants_list_to_format = []
 
     for i in participants_list:
-        participants_list_to_format.append(i['username'] or i['name'])
+        participants_list_to_format.append(f'<i>{i["username"] or i["name"]}</i>')
 
     participants_list_message = ', '.join(participants_list_to_format)
     participants_text = PARTICIPANTS_LIST.format(list_of_participants=participants_list_message)
