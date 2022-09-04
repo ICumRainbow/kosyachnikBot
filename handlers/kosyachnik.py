@@ -13,7 +13,7 @@ async def _send_winner_messages(chat_id, context: ContextTypes.DEFAULT_TYPE):
     participants_text = await format_participants_list(chat_id)  # Retrieving formatted test for a message listing participants
     winner_text = WINNER_MSG.format(winner=winner_name)  # Formatting a message with the winner using winner's id and name retrieved above
 
-    await context.bot.send_message(chat_id=chat_id, text=participants_text)
+    await context.bot.send_message(chat_id=chat_id, text=participants_text, parse_mode=ParseMode.HTML)
     await context.bot.send_message(chat_id=chat_id, text=PROCESS_STARTING_MSG)
     await context.bot.send_message(chat_id=chat_id, text=winner_text, parse_mode=ParseMode.HTML)
 
