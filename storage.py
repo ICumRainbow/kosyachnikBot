@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from typing import ClassVar
 
 import pymysql
+import pytz
 
 import config
 from queries import SELECT_USER_ID_QUERY, SELECT_ID_QUERY, INSERT_USER_QUERY, SELECT_GROUP_QUERY, INSERT_GROUP_QUERY, INSERT_SCORE_QUERY, SELECT_STATS_QUERY, SELECT_FETCH_STATS_QUERY, \
@@ -135,8 +136,9 @@ class Storage:
         """ Either creates or updates last time of calling the Kosyachnik function. """
         connection = await self._get_connection()
 
-        now = datetime.now(tz=timezone.utc)
-        current_time = now.strftime('%Y-%m-%d %H:%M:%S:%f')
+        # time_zone = pytz.timezone('Asia/Samarkand')
+        now = datetime.now()
+        current_time = now.strftime('%Y-%m-%d %H:%M:%S')
 
         row = (current_time, winner_id, chat_id)
 

@@ -7,6 +7,13 @@ from telegram.ext import ContextTypes
 from messages import KOSYACHNIK_STATS, PREFIX_TERMINATION, PREFIX_CEO, PREFIX_SLACKER, PREFIX_SIMPLE, NO_STATS
 from storage import storage
 
+PREFIXES = {
+    1: PREFIX_SIMPLE,
+    5: PREFIX_SLACKER,
+    10: PREFIX_CEO,
+    sys.maxsize: PREFIX_TERMINATION
+}
+
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """ Displays current statistics for the effective chat if there are registered users present.
@@ -27,21 +34,14 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if await storage.check_user_registered(chat_id=chat_id, user_id=user_id):
         await storage.update_user_row(target_user_id=user_id, new_username=username, new_name=name)
 
-    prefixes = {
-        1: PREFIX_SIMPLE,
-        5: PREFIX_SLACKER,
-        10: PREFIX_CEO,
-        sys.maxsize: PREFIX_TERMINATION
-    }
-
     kosyachnik_stats = []
 
     participants_list = await storage.retrieve_participants_list(chat_id)  # Retrieve list of this chat's participants and assign an appropriate prefix for every participant
     for row in participants_list:
         score = row['score']
-        for key in prefixes.keys():
+        for key in PREFIXES.keys():
             if score < key:
-                prefix = prefixes[key]
+                prefix = PREFIXES[key]
                 break
         else:
             prefix = ''

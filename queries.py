@@ -2,7 +2,7 @@ UPDATE_USER_ROW_QUERY = "UPDATE users SET username=%s, name=%s WHERE id=%s"
 SELECT_LAST_WINNER_QUERY = 'SELECT users.username AS "winner_username", users.name AS "winner_name", users.id AS "id" ' \
                        'FROM contest_groups ' \
                        'JOIN users ON contest_groups.id=%s AND contest_groups.winner_id=users.id;'
-SELECT_LAST_TIME_QUERY = 'SELECT last_time FROM contest_groups WHERE id=%s'
+SELECT_LAST_TIME_QUERY = 'SELECT CONVERT_TZ(last_time,"-04:00", "+05:00") AS "last_time" FROM contest_groups WHERE id=%s'
 UPDATE_LAST_TIME_QUERY = "UPDATE contest_groups SET last_time=%s, winner_id=%s WHERE id=%s"
 SELECT_LAST_TIME_NOT_NULL_QUERY = 'SELECT last_time FROM contest_groups WHERE id=%s and last_time IS NOT NULL'
 UPDATE_SCORE_QUERY = 'UPDATE scores SET score = score + 1 WHERE chat_id = %s AND user_id =%s'

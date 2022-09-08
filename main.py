@@ -9,7 +9,7 @@ from handlers.register import register
 from handlers.stats import stats
 
 PORT = int(os.environ.get('PORT', '8443'))
-TOKEN = '5715448930:AAGbnJDgHJElbYVYEhR1f7yKTpB7jkZ8FhI'
+TOKEN = '5715448930:AAGbnJDgHJElbYVYEhR1f7yKTpB7jkZ8FhI'  # This API IS FOR PRODUCTION - @kosyachnik_bot
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

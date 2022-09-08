@@ -2,10 +2,12 @@ from datetime import datetime, timedelta, timezone
 from random import choice
 from typing import Tuple
 
+import pytz
 from telegram import Update
 
 from messages import WAIT_MSG, PARTICIPANTS_LIST
 from storage import storage
+from pytz import all_timezones
 
 
 # offset = timedelta(hours=-4)
@@ -38,22 +40,21 @@ def verbose_format_time(h, m, s) -> str:
 verbose_format_time(1, 31, 21)
 
 
-async def check_time(update: Update) -> timedelta:
+async def check_time(update: Update) -> Tuple[bool, datetime]:
     """ Returns time(timedelta) passed since the last function call and a formatted message with this timedelta. """
     chat_id = update.message.chat.id
-    now = datetime.now(tz=timezone.utc)
-
+    time_zone = pytz.timezone('Asia/Samarkand')
+    # Fetching datetime.now making it first timezone-aware and then timezone-naive making it still show the timezone we need
+    now = datetime.now(time_zone).replace(tzinfo=None)
+    # Selecting a timezone-naive timestamp with the timezone we need (in this case, GMT +5)
     time = await storage.retrieve_time(chat_id=chat_id)
-
-    last_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
-    delta = now - last_time
-    print(delta)
-    return delta
+    last_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S') #.replace(tzinfo=time_zone)
+    check_day_passed = now.day > last_time.day
+    return check_day_passed, now
 
 
-def get_wait_text(delta, winner_name):
-    minutes, seconds = divmod(86400 - delta.seconds, 60)
-    hours, minutes = divmod(minutes, 60)
+def get_wait_text(now, winner_name):
+    minutes, seconds, hours = (60 - now.minute, 60 - now.second, 23 - now.hour)
     if hours != 0:
         seconds = 0
         time_string = verbose_format_time(hours, minutes, seconds)
