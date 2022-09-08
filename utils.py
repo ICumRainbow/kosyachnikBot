@@ -41,7 +41,7 @@ verbose_format_time(1, 31, 21)
 
 
 async def check_time(update: Update) -> Tuple[bool, datetime]:
-    """ Returns time(timedelta) passed since the last function call and a formatted message with this timedelta. """
+    """ Returns time(timedelta) passed since the last function call and a formatted message with this timedelta. THIS IS AN OLD COMMENT, GOTTA UPDATE"""
     chat_id = update.message.chat.id
     time_zone = pytz.timezone('Asia/Samarkand')
     # Fetching datetime.now making it first timezone-aware and then timezone-naive making it still show the timezone we need
