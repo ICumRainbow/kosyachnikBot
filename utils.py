@@ -49,7 +49,7 @@ async def check_time(update: Update) -> Tuple[bool, datetime]:
     # Selecting a timezone-naive timestamp with the timezone we need (in this case, GMT +5)
     time = await storage.retrieve_time(chat_id=chat_id)
     last_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S') #.replace(tzinfo=time_zone)
-    check_day_passed = now.day > last_time.day
+    check_day_passed = now.year > last_time.year or now.month > last_time.month or now.day > last_time.day
     return check_day_passed, now
 
 
