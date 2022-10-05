@@ -52,5 +52,4 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     kosyachnik_stats = '\n'.join(kosyachnik_stats)
 
     kosyachnik_stats_message = KOSYACHNIK_STATS.format(kosyachnik_statistics=kosyachnik_stats)  # Format a stats message with prefixes assigned above
-
     await context.bot.send_message(chat_id=chat_id, text=kosyachnik_stats_message, parse_mode=ParseMode.HTML)  # Display the message

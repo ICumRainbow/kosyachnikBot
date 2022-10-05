@@ -9,8 +9,8 @@ from handlers.register import register
 from handlers.stats import stats
 
 PORT = int(os.environ.get('PORT', '8443'))
-# TOKEN = '5431088637:AAHxhERaR-M3IpG7_8l5Fro1mwW95r9riII'  # This API TOKEN IS FOR TESTING - @Testing_bot4testing_bot
-TOKEN = '5715448930:AAG4tgzsitmYx_UOgvqrgdt9Jf36n_Ygp5U'  # This API TOKEN IS FOR PRODUCTION - @kosyachnik_bot
+TOKEN = '5431088637:AAHxhERaR-M3IpG7_8l5Fro1mwW95r9riII'  # This API TOKEN IS FOR TESTING - @Testing_bot4testing_bot
+# TOKEN = '5715448930:AAG4tgzsitmYx_UOgvqrgdt9Jf36n_Ygp5U'  # This API TOKEN IS FOR PRODUCTION - @kosyachnik_bot
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -28,11 +28,11 @@ if __name__ == '__main__':
 
     application.add_handlers(handlers)  # adding handlers
 
-    # application.run_polling()  # we use polling in case we want to test it by running it on our PC
+    application.run_polling()  # we use polling in case we want to test it by running it on our PC
 
-    application.run_webhook(  # adding webhooks only if the bot is run on a hosting
-        listen="0.0.0.0",
-        port=PORT,
-        url_path=TOKEN,
-        webhook_url='https://kosyachnik-bot.herokuapp.com/' + TOKEN
-    )
+    # application.run_webhook(  # adding webhooks only if the bot is run on a hosting
+    #     listen="0.0.0.0",
+    #     port=PORT,
+    #     url_path=TOKEN,
+    #     webhook_url='https://kosyachnik-bot.herokuapp.com/' + TOKEN
+    # )

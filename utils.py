@@ -37,7 +37,6 @@ def verbose_format_time(h, m, s) -> str:
     return time
 
 
-verbose_format_time(1, 31, 21)
 
 
 async def check_time(update: Update) -> Tuple[bool, datetime]:
@@ -91,3 +90,4 @@ async def choose_random_winner(chat_id) -> Tuple[int, str]:
     await storage.increment_row(chat_id, winner_id)
 
     return winner_id, winner_name
+
