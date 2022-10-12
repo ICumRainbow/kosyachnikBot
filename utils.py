@@ -47,6 +47,7 @@ async def check_time(update: Update) -> Tuple[bool, datetime]:
     now = datetime.now(time_zone).replace(tzinfo=None)
     # Selecting a timezone-naive timestamp with the timezone we need (in this case, GMT +5)
     time = await storage.retrieve_time(chat_id=chat_id)
+    print(now, time)
     last_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S') #.replace(tzinfo=time_zone)
     check_day_passed = now.year > last_time.year or now.month > last_time.month or now.day > last_time.day
     return check_day_passed, now
@@ -90,4 +91,3 @@ async def choose_random_winner(chat_id) -> Tuple[int, str]:
     await storage.increment_row(chat_id, winner_id)
 
     return winner_id, winner_name
-

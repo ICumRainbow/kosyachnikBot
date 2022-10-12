@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 
 # import pymysql
 import psycopg2
+import pytz
 from psycopg2.extras import DictCursor
 import config
 from queries import SELECT_USER_ID_QUERY, SELECT_ID_QUERY, INSERT_USER_QUERY, SELECT_GROUP_QUERY, INSERT_GROUP_QUERY, INSERT_SCORE_QUERY, SELECT_STATS_QUERY, SELECT_FETCH_STATS_QUERY, \
@@ -146,9 +147,10 @@ class Storage:
         """ Either creates or updates last time of calling the Kosyachnik function. """
         connection = await self._get_connection()
 
-        # time_zone = pytz.timezone('Asia/Samarkand')
-        now = datetime.now()
+        time_zone = pytz.timezone('Asia/Samarkand')
+        now = datetime.now(tz=time_zone)
         current_time = now.strftime('%Y-%m-%d %H:%M:%S')
+        print(current_time)
 
         row = (current_time, winner_id, chat_id)
 
