@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="VcsDirectoryMappings">
-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/heroku/pidor-checker-bot" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/pidor-checker-bot" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/pidorBot" vcs="Git" />
-  </component>
-</project>
